@@ -1,10 +1,11 @@
 //
-//  ViewController.swift
+//  NotesViewController.swift
 //  bsc-app
 //
-//  Created by Иван Пономарев on 27.03.2022.
+//  Created by Иван Пономарев on 01.04.2022.
 //
 
+import Foundation
 import UIKit
 
 class NotesViewController: UIViewController {
