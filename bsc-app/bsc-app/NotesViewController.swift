@@ -1,10 +1,11 @@
 //
-//  ViewController.swift
+//  NotesViewController.swift
 //  bsc-app
 //
-//  Created by Иван Пономарев on 27.03.2022.
+//  Created by Иван Пономарев on 01.04.2022.
 //
 
+import Foundation
 import UIKit
 
 class NotesViewController: UIViewController {
@@ -42,8 +43,8 @@ class NotesViewController: UIViewController {
     }
 
     func setupConstreint() {
-        setupTextFiledConstreint()
-        setupTextViewConstreint()
+        setupTextFiledConstraint()
+        setupTextViewConstraint()
     }
 
     @objc func didRightBarButtonTapped() {
@@ -68,20 +69,19 @@ class NotesViewController: UIViewController {
         textFiled.text = UserDefaults.standard.string(forKey: Keys.keyTextFild)
     }
 
-    func setupTextFiledConstreint() {
+    func setupTextFiledConstraint() {
         view.addSubview(textFiled)
         textFiled.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         textFiled.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 16).isActive = true
         textFiled.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -16).isActive = true
         textFiled.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        }
+    }
 
-    func setupTextViewConstreint() {
+    func setupTextViewConstraint() {
         view.addSubview(textView)
         textView.topAnchor.constraint(equalTo: textFiled.bottomAnchor, constant: 8).isActive = true
         textView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 16).isActive = true
         textView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -16).isActive = true
-        textView.bottomAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
-        textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100).isActive = true
+        textView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
     }
 }
