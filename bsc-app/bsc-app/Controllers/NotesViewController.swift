@@ -11,24 +11,20 @@ import UIKit
 class NotesViewController: UIViewController {
 
     private let rightBarButton = UIBarButtonItem()
-    private let leftBarButton = UIBarButtonItem()
     let date = Date()
 
     let headerTextFiled: UITextField = {
         let headerTextFiled = UITextField()
-        headerTextFiled.font = UIFont(name: "SFProText-Medium", size: 24)
+        headerTextFiled.font = UIFont(name: "SFProText-Medium", size: 24)// надо?
         headerTextFiled.placeholder = "Введите текст"
-        headerTextFiled.textColor = UIColor(red: 0.675, green: 0.675, blue: 0.675, alpha: 1)
         headerTextFiled.translatesAutoresizingMaskIntoConstraints = false
         return headerTextFiled
     }()
 
-    let dateLabel: UILabel = {
-        let dateLabel = UILabel()
-        dateLabel.textColor = UIColor(red: 0.675, green: 0.675, blue: 0.675, alpha: 1)
-        dateLabel.font = UIFont(name: "SFProText-Medium", size: 14)
+    let dateLabel: UITextField = {
+        let dateLabel = UITextField()
+        dateLabel.font = UIFont(name: "SFProText-Medium", size: 14) // ???
         dateLabel.textAlignment = .center
-        dateLabel.frame = CGRect(x: 0, y: 0, width: 350, height: 16)
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         return dateLabel
     }()
@@ -36,22 +32,19 @@ class NotesViewController: UIViewController {
     let textView: UITextView = {
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
-        textView.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 1)
-        textView.font = UIFont(name: "SFProText-Regular", size: 16)
+        textView.font = UIFont.systemFont(ofSize: 16)
         textView.isScrollEnabled = false
         textView.becomeFirstResponder()
-        textView.backgroundColor = .systemGray.withAlphaComponent(0.1)
         return textView
     }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        dateLabel.placeholder = setupFormatter().string(from: date)// куда жевать?
+        view.backgroundColor = .white // ???
         setupConstraint()
         setupRightBarButton()
         loadData()
-        dateLabel.text = setupFormatter().string(from: date)
-        setupLeftBarButton()
     }
 
     @objc func didRightBarButtonTapped() {
@@ -69,13 +62,6 @@ class NotesViewController: UIViewController {
 
     @objc func didLeftBarButtonTapped() {
 
-    }
-
-    func setupLeftBarButton() {
-        leftBarButton.title = "Назад"
-        leftBarButton.target  = self
-        leftBarButton.action = #selector(didLeftBarButtonTapped)
-        navigationItem.leftBarButtonItem = leftBarButton
     }
 
 // MARK: - Save end load
@@ -116,7 +102,7 @@ class NotesViewController: UIViewController {
         dateLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         dateLabel.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor).isActive = true
         dateLabel.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor).isActive = true
-//        dateLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        dateLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
     }
 
     func setupHeaderTextFiledConstraint() {
@@ -126,7 +112,7 @@ class NotesViewController: UIViewController {
                                               constant: 20).isActive = true
         headerTextFiled.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor,
                                                constant: -70).isActive = true
-        headerTextFiled.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        headerTextFiled.heightAnchor.constraint(equalToConstant: 44).isActive = true
     }
 
     func setupTextViewConstraint() {

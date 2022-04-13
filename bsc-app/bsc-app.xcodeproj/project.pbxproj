@@ -18,6 +18,7 @@
 		E8969928280038F0008A2E24 /* NotesList.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8969927280038F0008A2E24 /* NotesList.swift */; };
 		E896996C280309D9008A2E24 /* FontsFree-Net-SFProText-Semibold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E896996B280309D9008A2E24 /* FontsFree-Net-SFProText-Semibold.ttf */; };
 		E896996E28030CCF008A2E24 /* Inter-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = E896996D28030CCF008A2E24 /* Inter-Regular.otf */; };
+		E896997228059762008A2E24 /* note.swift in Sources */ = {isa = PBXBuildFile; fileRef = E896997128059762008A2E24 /* note.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		E8969927280038F0008A2E24 /* NotesList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesList.swift; sourceTree = "<group>"; };
 		E896996B280309D9008A2E24 /* FontsFree-Net-SFProText-Semibold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FontsFree-Net-SFProText-Semibold.ttf"; sourceTree = "<group>"; };
 		E896996D28030CCF008A2E24 /* Inter-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.otf"; sourceTree = "<group>"; };
+		E896997128059762008A2E24 /* note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = note.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +95,7 @@
 			isa = PBXGroup;
 			children = (
 				E8969927280038F0008A2E24 /* NotesList.swift */,
+				E896997128059762008A2E24 /* note.swift */,
 				E892CC6627F6D65900C021BC /* NotesViewController.swift */,
 			);
 			path = Controllers;
@@ -197,6 +200,7 @@
 				E892CC6927F6E3CD00C021BC /* NotesModel.swift in Sources */,
 				E896992127FC5AFE008A2E24 /* NotesStorege.swift in Sources */,
 				E8957F8C27F0700900732081 /* SceneDelegate.swift in Sources */,
+				E896997228059762008A2E24 /* note.swift in Sources */,
 				E892CC6727F6D65900C021BC /* NotesViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
