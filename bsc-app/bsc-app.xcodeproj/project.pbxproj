@@ -13,12 +13,13 @@
 		E8957F8C27F0700900732081 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8957F8B27F0700900732081 /* SceneDelegate.swift */; };
 		E8957F9327F0700B00732081 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8957F9227F0700B00732081 /* Assets.xcassets */; };
 		E8957F9627F0700B00732081 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E8957F9427F0700B00732081 /* LaunchScreen.storyboard */; };
-		E896992127FC5AFE008A2E24 /* NotesStorege.swift in Sources */ = {isa = PBXBuildFile; fileRef = E896992027FC5AFD008A2E24 /* NotesStorege.swift */; };
+		E896992127FC5AFE008A2E24 /* NotesStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E896992027FC5AFD008A2E24 /* NotesStorage.swift */; };
 		E896992628002694008A2E24 /* SF-Pro-Text-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = E896992528002693008A2E24 /* SF-Pro-Text-Medium.otf */; };
 		E8969928280038F0008A2E24 /* NotesList.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8969927280038F0008A2E24 /* NotesList.swift */; };
 		E896996C280309D9008A2E24 /* FontsFree-Net-SFProText-Semibold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E896996B280309D9008A2E24 /* FontsFree-Net-SFProText-Semibold.ttf */; };
 		E896996E28030CCF008A2E24 /* Inter-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = E896996D28030CCF008A2E24 /* Inter-Regular.otf */; };
-		E896997228059762008A2E24 /* note.swift in Sources */ = {isa = PBXBuildFile; fileRef = E896997128059762008A2E24 /* note.swift */; };
+		E896997228059762008A2E24 /* NoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E896997128059762008A2E24 /* NoteView.swift */; };
+		E8969974280D374A008A2E24 /* NotesViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8969973280D374A008A2E24 /* NotesViewDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,12 +31,13 @@
 		E8957F9227F0700B00732081 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E8957F9527F0700B00732081 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E8957F9727F0700B00732081 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E896992027FC5AFD008A2E24 /* NotesStorege.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesStorege.swift; sourceTree = "<group>"; };
+		E896992027FC5AFD008A2E24 /* NotesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesStorage.swift; sourceTree = "<group>"; };
 		E896992528002693008A2E24 /* SF-Pro-Text-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Text-Medium.otf"; sourceTree = "<group>"; };
 		E8969927280038F0008A2E24 /* NotesList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesList.swift; sourceTree = "<group>"; };
 		E896996B280309D9008A2E24 /* FontsFree-Net-SFProText-Semibold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FontsFree-Net-SFProText-Semibold.ttf"; sourceTree = "<group>"; };
 		E896996D28030CCF008A2E24 /* Inter-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.otf"; sourceTree = "<group>"; };
-		E896997128059762008A2E24 /* note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = note.swift; sourceTree = "<group>"; };
+		E896997128059762008A2E24 /* NoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteView.swift; sourceTree = "<group>"; };
+		E8969973280D374A008A2E24 /* NotesViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesViewDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,7 +73,8 @@
 				E896994A280170AE008A2E24 /* Controllers */,
 				E896994928017024008A2E24 /* Aplication */,
 				E892CC6827F6E3CD00C021BC /* NotesModel.swift */,
-				E896992027FC5AFD008A2E24 /* NotesStorege.swift */,
+				E8969973280D374A008A2E24 /* NotesViewDelegate.swift */,
+				E896992027FC5AFD008A2E24 /* NotesStorage.swift */,
 				E8957F9227F0700B00732081 /* Assets.xcassets */,
 				E8957F9427F0700B00732081 /* LaunchScreen.storyboard */,
 				E8957F9727F0700B00732081 /* Info.plist */,
@@ -94,9 +97,9 @@
 		E896994A280170AE008A2E24 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				E8969927280038F0008A2E24 /* NotesList.swift */,
-				E896997128059762008A2E24 /* note.swift */,
 				E892CC6627F6D65900C021BC /* NotesViewController.swift */,
+				E8969927280038F0008A2E24 /* NotesList.swift */,
+				E896997128059762008A2E24 /* NoteView.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -198,9 +201,10 @@
 				E8957F8A27F0700900732081 /* AppDelegate.swift in Sources */,
 				E8969928280038F0008A2E24 /* NotesList.swift in Sources */,
 				E892CC6927F6E3CD00C021BC /* NotesModel.swift in Sources */,
-				E896992127FC5AFE008A2E24 /* NotesStorege.swift in Sources */,
+				E896992127FC5AFE008A2E24 /* NotesStorage.swift in Sources */,
 				E8957F8C27F0700900732081 /* SceneDelegate.swift in Sources */,
-				E896997228059762008A2E24 /* note.swift in Sources */,
+				E8969974280D374A008A2E24 /* NotesViewDelegate.swift in Sources */,
+				E896997228059762008A2E24 /* NoteView.swift in Sources */,
 				E892CC6727F6D65900C021BC /* NotesViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -8,106 +8,126 @@
 import Foundation
 import UIKit
 
-class NotesList: UIViewController {
+class NotesList: UIViewController, NotesViewDelegate {
 
-//    let scrollView =  UIScrollView()
-    let addButton = UIButton()
-    let stackView = UIStackView()
+    private let scrollView =  UIScrollView()
+    private let addNoteButton = UIButton()
+    private let stackView = UIStackView()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Заметка"
-//        setupScrollConstraint()
-        configureStackView()
-        setupAddButton()
-        view.backgroundColor = .white
+        title = "Заметки"
+        view.backgroundColor = UIColor(red: 0.898, green: 0.898, blue: 0.898, alpha: 1)
+        setupStackView()
+        setupNoteListConstraint()
+        setupAddNoteButton()
     }
 
-    func setupAddButton() {
-        addButton.backgroundColor = .systemBlue
-        addButton.layer.cornerRadius = 25
-        addButton.setTitle("+", for: .normal)
-        addButton.titleLabel?.font = UIFont.systemFont(ofSize: 36, weight: .regular)
-        addButton.contentVerticalAlignment = .bottom
-        addButton.addTarget(self, action: #selector(tuchAddButton), for: .touchUpInside)
-        addButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(addButton)
-        addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
-        addButton.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -16).isActive = true
-        addButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        addButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
-    }
+    // MARK: - Create notesmodel and stackview
 
-    @objc func tuchAddButton() {
+    func createNotesViewController(index: Int?) {
         let notesViewController = NotesViewController()
-        navigationController?.pushViewController(notesViewController, animated: true)
-        navigationItem.title = ""
+        notesViewController.delegate = self
+        notesViewController.indexPath = index
+        self.navigationController?.pushViewController(notesViewController, animated: true)
     }
 
-//    func setupScrollConstraint() {
-//        view.addSubview(scrollView)
-//        scrollView.showsVerticalScrollIndicator = false
-//        scrollView.backgroundColor = .gray
-//        scrollView.translatesAutoresizingMaskIntoConstraints = false
-//        scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30).isActive = true
-//        scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16).isActive = true
-//        scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
-//        scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
-//    }
+    func createStackView() {
+        guard let arr = NotesStorage.notesModel else { return }
+        for (index, note) in arr.enumerated() {
+            let noteView = NoteView()
+            noteView.headerlabel.text = note.header
+            noteView.dateLabel.text = note.dateNotes
+            noteView.textLabel.text = note.notesText
+            noteView.tapClosure = {
+                self.createNotesViewController(index: index)
+            }
+            stackView.addArrangedSubview(noteView)
+        }
+    }
 
-    func configureStackView() {
-        view.addSubview(stackView)
+    func goBackButton(model: NotesModel, index: Int) {
+        if stackView.arrangedSubviews.indices.contains(index) {
+            let view = stackView.arrangedSubviews[index]
+            if let noteView = view as? NoteView {
+                noteView.headerlabel.text = model.header
+                noteView.dateLabel.text = model.dateNotes
+                noteView.textLabel.text = model.notesText
+            }
+        } else {
+            let noteView = NoteView()
+            noteView.headerlabel.text = model.header
+            noteView.dateLabel.text = model.dateNotes
+            noteView.textLabel.text = model.notesText
+            noteView.tapClosure = {
+                self.createNotesViewController(index: index)
+            }
+            stackView.addArrangedSubview(noteView)
+        }
+    }
+
+    // MARK: - setup
+
+    @objc func tapAddNoteButton() {
+        createNotesViewController(index: nil)
+    }
+
+    func setupAddNoteButton() {
+        addNoteButton.backgroundColor = .systemBlue
+        addNoteButton.layer.cornerRadius = 25
+        addNoteButton.setTitle("+", for: .normal)
+        addNoteButton.titleLabel?.font = UIFont.systemFont(ofSize: 36, weight: .regular)
+        addNoteButton.contentVerticalAlignment = .bottom
+        addNoteButton.addTarget(self, action: #selector(tapAddNoteButton), for: .touchUpInside)
+    }
+
+    func setupStackView() {
+        scrollView.addSubview(stackView)
         stackView.axis = .vertical
         stackView.spacing = 4
-        configureStackConstraint()
-        let noteView = NoteView()
-        stackView.addArrangedSubview(noteView)
-        stackView.addArrangedSubview(NoteView())
+        stackView.layer.cornerRadius = 14
+        createStackView()
     }
 
-//    func addView() {
-//        let numNot = 5
-//        for _ in 1...numNot {
-//            let noteView  = NoteView()
-//            stackView.addArrangedSubview(noteView)
-//
-//        }
-//    }
+    // MARK: - Setup constraint
+    func setupNoteListConstraint() {
+        setupScrollViewConstraint()
+        setupStackConstraint()
+        setupAddNoteButtonConstraint()
+    }
 
-    func configureStackConstraint() {
-        stackView.translatesAutoresizingMaskIntoConstraints = false
+    func setupAddNoteButtonConstraint() {
+        view.addSubview(addNoteButton)
+        addNoteButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            stackView.bottomAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor)
+            addNoteButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            addNoteButton.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -16),
+            addNoteButton.heightAnchor.constraint(equalToConstant: 50),
+            addNoteButton.widthAnchor.constraint(equalToConstant: 50)
         ])
     }
 
-//    func createStackView() {
-//        let poteView = UILabel()
-//        poteView.layer.cornerRadius = 14
-//        poteView.textAlignment = .center
-//        poteView.text = "hello"
-//        poteView.backgroundColor = .red
-//        poteView.translatesAutoresizingMaskIntoConstraints = false
-//        let stackView = UIStackView()
-//        stackView.axis = .vertical
-//        stackView.distribution = .fillEqually
-//        stackView.spacing = 10
-//        stackView.addArrangedSubview(poteView)
-//        scrollView.addSubview(stackView)
-//        stackView.frame = view.bounds
-//        stackView.translatesAutoresizingMaskIntoConstraints = false
-//        NSLayoutConstraint.activate([
-//        stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-//        stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-//        stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-//        ])
-//        NSLayoutConstraint.activate([
-//        poteView.topAnchor.constraint(equalTo: stackView.topAnchor),
-//        poteView.leftAnchor.constraint(equalTo: stackView.leftAnchor),
-//        poteView.rightAnchor.constraint(equalTo: stackView.rightAnchor),
-//        poteView.heightAnchor.constraint(equalToConstant: 90)
-//        ])
+    func setupScrollViewConstraint() {
+        view.addSubview(scrollView)
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.backgroundColor = UIColor(red: 0.898, green: 0.898, blue: 0.898, alpha: 1)
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+    }
+
+    func setupStackConstraint() {
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+        ])
+    }
 }

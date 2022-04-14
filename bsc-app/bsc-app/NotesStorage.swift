@@ -7,12 +7,12 @@
 
 import Foundation
 
-final class NotesStorege {
-    static var notesModel: NotesModel! {
+final class NotesStorage {
+    static var notesModel: [NotesModel]? {
         get {
             guard let savedData = UserDefaults.standard.object(forKey: "saveData") as? Data,
             let decodedModel = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(savedData)
-                    as? NotesModel else { return nil}
+                    as? [NotesModel] else { return []}
             return decodedModel
         }
         set {
@@ -25,4 +25,4 @@ final class NotesStorege {
             }
         }
     }
-}
+ }
