@@ -8,14 +8,14 @@
 import Foundation
 import UIKit
 
-class NotesViewController: UIViewController {
+final class NotesViewController: UIViewController {
 
     weak var delegate: NotesViewDelegate?
 
     private let rightBarButton = UIBarButtonItem()
     private let backBarButton = UIBarButtonItem()
-    private let imageBackButton = UIImage(named: "chevron.left" )
-    private let date = Date()
+    private let imageBackButton = UIImage(named: "chevron.left")
+    let date = Date()
     private let scrollView = UIScrollView()
     var indexPath: Int?
 
@@ -27,7 +27,7 @@ class NotesViewController: UIViewController {
         return headerTextFiled
     }()
 
-    private let dateTextFiled: UILabel = {
+    let dateTextFiled: UILabel = {
         let dateLabel = UILabel()
         dateLabel.font = UIFont(name: "SFProText-Medium", size: 14)
         dateLabel.textAlignment = .center
@@ -41,7 +41,6 @@ class NotesViewController: UIViewController {
         noteTextView.font = UIFont.systemFont(ofSize: 16)
         noteTextView.isScrollEnabled = false
         noteTextView.becomeFirstResponder()
-        noteTextView.adjustableForKeyboard()
         return noteTextView
     }()
 
@@ -49,15 +48,17 @@ class NotesViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupConstraint()
-        setupRightBarButton()
         setupBackBarButton()
         loadNote()
+        setupRightBarButton()
+        adjustableForKeyboard()
     }
 
     // MARK: - setup action button
 
     @objc func tapBackBarButton() {
         let index = saveNewNote(notes: createModel())
+
         self.delegate?.goBackButton(model: createModel(), index: index)
         navigationController?.popToRootViewController(animated: true)
     }
@@ -69,59 +70,65 @@ class NotesViewController: UIViewController {
 
     // MARK: - Save end load
 
-    func updateNotesModel(notes: NotesModel) {
-        if indexPath != nil {
+    private func updateNotesModel(notes: NotesModel) {
+        if  let indexPath = indexPath {
+            guard let check = NotesStorage.notesModel?[indexPath].isEmpt else { return }
+            if check {
+                createAlert()
+            }
             var arrayNotesModel = NotesStorage.notesModel
-            arrayNotesModel?[indexPath!] = notes
+            arrayNotesModel?[indexPath] = notes
             NotesStorage.notesModel = arrayNotesModel
         }
-        view.endEditing(true)
     }
 
-    func saveNewNote(notes: NotesModel) -> Int {
+    private func saveNewNote(notes: NotesModel) -> Int {
         var arrayNotesModel = NotesStorage.notesModel
-        if indexPath == nil {
+        if let indexPath = indexPath {
+            arrayNotesModel?[indexPath] = notes
+            NotesStorage.notesModel = arrayNotesModel
+            return indexPath
+        } else {
             arrayNotesModel?.append(createModel())
             NotesStorage.notesModel = arrayNotesModel
             return (arrayNotesModel?.count ?? 1) - 1
-        } else {
-            arrayNotesModel?[indexPath!] = notes
-            NotesStorage.notesModel = arrayNotesModel
-            return indexPath!
         }
     }
 
-    func createModel() -> NotesModel {
-        let newHeader = headerTextFiled.text!
-        let newNotes = noteTextView.text!
-        let newDate = dateTextFiled.text!
-        let notesModel = NotesModel(header: newHeader, notesText: newNotes, dateNotes: newDate)
-        return (notesModel)
+    private func createModel() -> NotesModel {
+        if let newHeader = headerTextFiled.text,
+           let newNotes = noteTextView.text {
+            let newDate = setupFormatter(fotmat: "dd.MM.yyyy").string(from: date)
+            let notesModel = NotesModel(header: newHeader, notesText: newNotes, dateNotes: newDate)
+            return (notesModel)
+        }
+        let notesModel = NotesModel(header: "model", notesText: "получила", dateNotes: "nil")
+        return notesModel
     }
 
-    func loadNote() {
-        if indexPath != nil {
-            if let header  = NotesStorage.notesModel?[indexPath!].header {
-                headerTextFiled.text = header
-            }
-            let date = setupFormatter().string(from: date)
-            dateTextFiled.text = date
-            if let text = NotesStorage.notesModel?[indexPath!].notesText {
-                noteTextView.text = text
-            }
+    private func loadNote() {
+        guard let indexPath = indexPath else { return }
+        if let header = NotesStorage.notesModel?[indexPath].header {
+            headerTextFiled.text = header
+        }
+        let date = setupFormatter(fotmat: "dd.MM.yyyy EEEE HH:mm").string(from: date)
+        dateTextFiled.text = date
+        if let text = NotesStorage.notesModel?[indexPath].notesText {
+            noteTextView.text = text
         }
     }
 
     // MARK: - Setup elements
 
-    func setupBackBarButton() {
+    private func setupBackBarButton() {
         navigationItem.leftBarButtonItem = backBarButton
         backBarButton.target = self
         backBarButton.image = imageBackButton
         backBarButton.action = #selector(tapBackBarButton)
+
     }
 
-    func setupRightBarButton() {
+    private func setupRightBarButton() {
         rightBarButton.title = "Готово"
         rightBarButton.target = self
         rightBarButton.action = #selector(tapReadyBarButton)
@@ -129,24 +136,24 @@ class NotesViewController: UIViewController {
     }
 
     // MARK: - Date
-    func setupFormatter() -> DateFormatter {
+    func setupFormatter(fotmat: String) -> DateFormatter {
         let formatter = DateFormatter()
         formatter.timeZone = .current
         formatter.locale = .current
-        formatter.dateFormat = "dd.MM.yyyy EEEE HH:mm"
+        formatter.dateFormat = fotmat
         return formatter
     }
 
-    // MARK: - Constreint
+    // MARK: - Constraint
 
-    func setupConstraint() {
+    private func setupConstraint() {
         setupDateTextFiledConstraint()
         setupHeaderTextFiledConstraint()
         setupTextViewConstraint()
         setupScrollViewConstraint()
     }
 
-    func setupScrollViewConstraint() {
+    private func setupScrollViewConstraint() {
         view.addSubview(scrollView)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.showsVerticalScrollIndicator = false
@@ -158,8 +165,7 @@ class NotesViewController: UIViewController {
         ])
     }
 
-    func setupDateTextFiledConstraint() {
-        dateTextFiled.text = setupFormatter().string(from: date)
+    private func setupDateTextFiledConstraint() {
         view.addSubview(dateTextFiled)
         NSLayoutConstraint.activate([
             dateTextFiled.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -169,7 +175,7 @@ class NotesViewController: UIViewController {
         ])
     }
 
-    func setupHeaderTextFiledConstraint() {
+    private func setupHeaderTextFiledConstraint() {
         view.addSubview(headerTextFiled)
         NSLayoutConstraint.activate([
             headerTextFiled.topAnchor.constraint(equalTo: dateTextFiled.bottomAnchor, constant: 20),
@@ -179,7 +185,7 @@ class NotesViewController: UIViewController {
         ])
     }
 
-    func setupTextViewConstraint() {
+    private func setupTextViewConstraint() {
         scrollView.addSubview(noteTextView)
         NSLayoutConstraint.activate([
             noteTextView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
@@ -189,9 +195,7 @@ class NotesViewController: UIViewController {
             noteTextView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
         ])
     }
-}
 
-extension UITextView {
     func adjustableForKeyboard() {
         let natification = NotificationCenter.default
         natification.addObserver(
@@ -212,24 +216,22 @@ extension UITextView {
         }
 
         let keyboardScreenEndFrame = keyboardValue.cgRectValue
-        let keyboardViewAndFrame = convert(keyboardScreenEndFrame, from: window)
-
+        let keyboardViewAndFrame = noteTextView.convert(keyboardScreenEndFrame, from: noteTextView.window)
         if notification.name == UIResponder.keyboardWillHideNotification {
-            contentInset = .zero
+            noteTextView.contentInset = .zero
+            navigationItem.rightBarButtonItem = nil
         } else {
-            contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewAndFrame.height, right: 0)
+            noteTextView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewAndFrame.height, right: 0)
+            navigationItem.rightBarButtonItem = rightBarButton
         }
-        scrollIndicatorInsets = contentInset
-        scrollRangeToVisible(selectedRange)
+        noteTextView.scrollIndicatorInsets = noteTextView.contentInset
+        noteTextView.scrollRangeToVisible(noteTextView.selectedRange)
     }
-}
-extension NotesViewController {
-    func notesIsEmpty() {
-        if  NotesStorage.notesModel?[indexPath!].isEmpt == true {
-            let alert = UIAlertController(title: "Заполните заметку", message: nil, preferredStyle: .alert)
-            let alertAction = UIAlertAction(title: "Ok", style: .default, handler: nil)
-            alert.addAction(alertAction)
-            present(alert, animated: true, completion: nil)
-        }
+
+    func createAlert() {
+        let alert = UIAlertController(title: "Заполните заметку", message: nil, preferredStyle: .alert)
+        let alertAction = UIAlertAction(title: "Ok", style: .default, handler: nil)
+        alert.addAction(alertAction)
+        present(alert, animated: true, completion: nil)
     }
 }
