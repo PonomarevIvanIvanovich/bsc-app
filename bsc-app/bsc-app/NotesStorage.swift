@@ -11,15 +11,14 @@ final class NotesStorage {
     static var notesModel: [NotesModel]? {
         get {
             guard let savedData = UserDefaults.standard.object(forKey: "saveData") as? Data,
-            let decodedModel = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(savedData)
-                    as? [NotesModel] else { return []}
+                  let decodedModel = try? JSONDecoder().decode([NotesModel].self, from: savedData)
+            else {return []}
             return decodedModel
         }
         set {
             let defaults = UserDefaults.standard
             if let notesModel = newValue {
-                if let saveData = try? NSKeyedArchiver.archivedData(withRootObject: notesModel,
-                                                                    requiringSecureCoding: false) {
+                if let saveData = try? JSONEncoder().encode(notesModel) {
                     defaults.set(saveData, forKey: "saveData")
                 }
             }
