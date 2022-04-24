@@ -13,6 +13,7 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     private let addNoteButton = UIButton()
     private let noteList = UITableView(frame: CGRect.zero, style: .grouped )
     private let identifier = "Cell"
+    private let appDate = AppDateFormatter()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,17 +31,16 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     }
 
     @objc func tapAddNoteButton() {
-        createNotesViewController(index: nil)
+        createNotesViewController(model: nil, index: nil)
     }
 
-    private func createNotesViewController(index: Int?) {
-        let notesViewController = NotesViewController()
-        notesViewController.delegate = self
-        notesViewController.indexPath = index
-        notesViewController.dateTextFiled.text = notesViewController.setupFormatter(
-            fotmat: "dd.MM.yyyy EEEE HH:mm").string(from: notesViewController.date)
-        self.navigationController?.pushViewController(notesViewController, animated: true)
-    }
+    func createNotesViewController(model: NotesModel?, index: Int?) {
+            let notesViewController = NotesViewController()
+                notesViewController.loadNote(model)
+                notesViewController.indexPath = index
+            notesViewController.delegate = self
+            self.navigationController?.pushViewController(notesViewController, animated: true)
+        }
 
     // MARK: - Setup elements
 
@@ -101,7 +101,9 @@ extension NotesListViewController: UITableViewDataSource {
         if let cell = noteList.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? NoteCell {
             cell.selectionStyle = .none
             cell.noteView.headerlabel.text = NotesStorage.notesModel?[indexPath.row].header
-            cell.noteView.dateLabel.text = NotesStorage.notesModel?[indexPath.row].dateNotes
+            if let date = NotesStorage.notesModel?[indexPath.row].dateNotes {
+            cell.noteView.dateLabel.text = appDate.format(date, dateFormat: "dd.MM.yyyy")
+            }
             cell.noteView.textLabel.text = NotesStorage.notesModel?[indexPath.row].notesText
             return cell
         }
@@ -113,6 +115,6 @@ extension NotesListViewController: UITableViewDataSource {
 
 extension NotesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        createNotesViewController(index: indexPath.row)
+        createNotesViewController(model: NotesStorage.notesModel?[indexPath.row], index: indexPath.row)
     }
 }

@@ -7,16 +7,16 @@
 
 import Foundation
 
-final class NotesModel: Codable {
+struct NotesModel: Codable {
 
     var header: String
     var notesText: String
-    var dateNotes: String?
-    var isEmpt: Bool {
+    var dateNotes: Date
+    var isEmptyNotes: Bool {
         return header.isEmpty || notesText.isEmpty
     }
 
-    init(header: String, notesText: String, dateNotes: String) {
+    init(header: String, notesText: String, dateNotes: Date) {
         self.header = header
         self.notesText = notesText
         self.dateNotes = dateNotes

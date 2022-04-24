@@ -15,7 +15,8 @@ final class NotesViewController: UIViewController {
     private let rightBarButton = UIBarButtonItem()
     private let backBarButton = UIBarButtonItem()
     private let imageBackButton = UIImage(named: "chevron.left")
-    let date = Date()
+    private let date = Date()
+    private let appDate = AppDateFormatter()
     private let scrollView = UIScrollView()
     var indexPath: Int?
 
@@ -49,30 +50,29 @@ final class NotesViewController: UIViewController {
         view.backgroundColor = .white
         setupConstraint()
         setupBackBarButton()
-        loadNote()
         setupRightBarButton()
-        adjustableForKeyboard()
     }
 
     // MARK: - setup action button
 
     @objc func tapBackBarButton() {
-        let index = saveNewNote(notes: createModel())
-
-        self.delegate?.goBackButton(model: createModel(), index: index)
+        guard let model = createModel() else { return }
+        guard let index = saveNewNote(notes: model) else { return }
+        self.delegate?.goBackButton(model: model, index: index)
         navigationController?.popToRootViewController(animated: true)
     }
 
     @objc func tapReadyBarButton() {
         view.endEditing(true)
-        updateNotesModel(notes: createModel())
+        guard let model  = createModel() else { return }
+        updateNotesModel(notes: model)
     }
 
     // MARK: - Save end load
 
     private func updateNotesModel(notes: NotesModel) {
         if  let indexPath = indexPath {
-            guard let check = NotesStorage.notesModel?[indexPath].isEmpt else { return }
+            guard let check = NotesStorage.notesModel?[indexPath].isEmptyNotes else { return }
             if check {
                 createAlert()
             }
@@ -82,41 +82,37 @@ final class NotesViewController: UIViewController {
         }
     }
 
-    private func saveNewNote(notes: NotesModel) -> Int {
+    private func saveNewNote(notes: NotesModel) -> Int? {
+        guard let model  = createModel() else { return nil }
         var arrayNotesModel = NotesStorage.notesModel
         if let indexPath = indexPath {
             arrayNotesModel?[indexPath] = notes
             NotesStorage.notesModel = arrayNotesModel
             return indexPath
         } else {
-            arrayNotesModel?.append(createModel())
+            arrayNotesModel?.append(model)
             NotesStorage.notesModel = arrayNotesModel
             return (arrayNotesModel?.count ?? 1) - 1
         }
     }
 
-    private func createModel() -> NotesModel {
+    private func createModel() -> NotesModel? {
         if let newHeader = headerTextFiled.text,
            let newNotes = noteTextView.text {
-            let newDate = setupFormatter(fotmat: "dd.MM.yyyy").string(from: date)
-            let notesModel = NotesModel(header: newHeader, notesText: newNotes, dateNotes: newDate)
-            return (notesModel)
+            let notesModel = NotesModel(header: newHeader, notesText: newNotes, dateNotes: date)
+            guard notesModel.isEmptyNotes else { return notesModel }
+            createAlert()
+            return nil
         }
-        let notesModel = NotesModel(header: "model", notesText: "получила", dateNotes: "nil")
-        return notesModel
+        return nil
     }
 
-    private func loadNote() {
-        guard let indexPath = indexPath else { return }
-        if let header = NotesStorage.notesModel?[indexPath].header {
-            headerTextFiled.text = header
-        }
-        let date = setupFormatter(fotmat: "dd.MM.yyyy EEEE HH:mm").string(from: date)
-        dateTextFiled.text = date
-        if let text = NotesStorage.notesModel?[indexPath].notesText {
-            noteTextView.text = text
-        }
-    }
+    func loadNote(_ model: NotesModel?) {
+           dateTextFiled.text = appDate.format(date, dateFormat: "dd.MM.yyyy EEEE HH:mm")
+           guard let model = model else { return }
+           headerTextFiled.text = model.header
+           noteTextView.text = model.notesText
+       }
 
     // MARK: - Setup elements
 
@@ -136,7 +132,7 @@ final class NotesViewController: UIViewController {
     }
 
     // MARK: - Date
-    func setupFormatter(fotmat: String) -> DateFormatter {
+    private func setupFormatter(fotmat: String) -> DateFormatter {
         let formatter = DateFormatter()
         formatter.timeZone = .current
         formatter.locale = .current
@@ -161,7 +157,9 @@ final class NotesViewController: UIViewController {
             scrollView.topAnchor.constraint(equalTo: headerTextFiled.bottomAnchor, constant: 12),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            view.keyboardLayoutGuide.topAnchor.constraint(
+                equalToSystemSpacingBelow: scrollView.bottomAnchor,
+                multiplier: 1.0)
         ])
     }
 
@@ -194,38 +192,6 @@ final class NotesViewController: UIViewController {
             noteTextView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             noteTextView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
         ])
-    }
-
-    func adjustableForKeyboard() {
-        let natification = NotificationCenter.default
-        natification.addObserver(
-            self,
-            selector: #selector(abjustForKeyboard),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil)
-        natification.addObserver(
-            self,
-            selector: #selector(abjustForKeyboard),
-            name: UIResponder.keyboardWillChangeFrameNotification,
-            object: nil)
-    }
-
-    @objc func abjustForKeyboard(notification: Notification) {
-        guard let keyboardValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
-            return
-        }
-
-        let keyboardScreenEndFrame = keyboardValue.cgRectValue
-        let keyboardViewAndFrame = noteTextView.convert(keyboardScreenEndFrame, from: noteTextView.window)
-        if notification.name == UIResponder.keyboardWillHideNotification {
-            noteTextView.contentInset = .zero
-            navigationItem.rightBarButtonItem = nil
-        } else {
-            noteTextView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewAndFrame.height, right: 0)
-            navigationItem.rightBarButtonItem = rightBarButton
-        }
-        noteTextView.scrollIndicatorInsets = noteTextView.contentInset
-        noteTextView.scrollRangeToVisible(noteTextView.selectedRange)
     }
 
     func createAlert() {

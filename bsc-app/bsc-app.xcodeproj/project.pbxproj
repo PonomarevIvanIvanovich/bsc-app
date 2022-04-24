@@ -21,6 +21,7 @@
 		E896997228059762008A2E24 /* NoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E896997128059762008A2E24 /* NoteView.swift */; };
 		E8969974280D374A008A2E24 /* NotesViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8969973280D374A008A2E24 /* NotesViewDelegate.swift */; };
 		E8969978280D5248008A2E24 /* NoteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8969977280D5248008A2E24 /* NoteCell.swift */; };
+		E8E4A2C0281AF6A800AC6B04 /* appFormater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E4A2BF281AF6A800AC6B04 /* appFormater.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +41,7 @@
 		E896997128059762008A2E24 /* NoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteView.swift; sourceTree = "<group>"; };
 		E8969973280D374A008A2E24 /* NotesViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesViewDelegate.swift; sourceTree = "<group>"; };
 		E8969977280D5248008A2E24 /* NoteCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteCell.swift; sourceTree = "<group>"; };
+		E8E4A2BF281AF6A800AC6B04 /* appFormater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = appFormater.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +113,7 @@
 				E8969977280D5248008A2E24 /* NoteCell.swift */,
 				E896997128059762008A2E24 /* NoteView.swift */,
 				E8969973280D374A008A2E24 /* NotesViewDelegate.swift */,
+				E8E4A2BF281AF6A800AC6B04 /* appFormater.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -214,6 +217,7 @@
 				E8969928280038F0008A2E24 /* NotesListViewController.swift in Sources */,
 				E892CC6927F6E3CD00C021BC /* NotesModel.swift in Sources */,
 				E896992127FC5AFE008A2E24 /* NotesStorage.swift in Sources */,
+				E8E4A2C0281AF6A800AC6B04 /* appFormater.swift in Sources */,
 				E8957F8C27F0700900732081 /* SceneDelegate.swift in Sources */,
 				E8969974280D374A008A2E24 /* NotesViewDelegate.swift in Sources */,
 				E896997228059762008A2E24 /* NoteView.swift in Sources */,

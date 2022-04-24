@@ -30,7 +30,6 @@ final class NoteView: UIView {
 
     let dateLabel: UILabel = {
         let dateLabel = UILabel()
-        dateLabel.text = NotesStorage.notesModel?.last?.dateNotes
         dateLabel.font = UIFont(name: "SFProText-Medium", size: 10)
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         return dateLabel
@@ -86,9 +85,9 @@ final class NoteView: UIView {
     }
 
     private func noteViewConstraint() {
-        self.translatesAutoresizingMaskIntoConstraints = false
-        self.heightAnchor.constraint(equalToConstant: 90).isActive = true
-        self.backgroundColor = .white
-        self.layer.cornerRadius = 14
+        translatesAutoresizingMaskIntoConstraints = false
+        heightAnchor.constraint(equalToConstant: 90).isActive = true
+        backgroundColor = .white
+        layer.cornerRadius = 14
     }
 }
