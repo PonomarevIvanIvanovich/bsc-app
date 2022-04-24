@@ -70,10 +70,10 @@
 		E8957F8827F0700900732081 /* bsc-app */ = {
 			isa = PBXGroup;
 			children = (
-				E896994A280170AE008A2E24 /* Controllers */,
 				E896994928017024008A2E24 /* Aplication */,
+				E896994A280170AE008A2E24 /* Controllers */,
+				E8E4A2B92813EFC100AC6B04 /* View */,
 				E892CC6827F6E3CD00C021BC /* NotesModel.swift */,
-				E8969973280D374A008A2E24 /* NotesViewDelegate.swift */,
 				E896992027FC5AFD008A2E24 /* NotesStorage.swift */,
 				E8957F9227F0700B00732081 /* Assets.xcassets */,
 				E8957F9427F0700B00732081 /* LaunchScreen.storyboard */,
@@ -99,9 +99,17 @@
 			children = (
 				E892CC6627F6D65900C021BC /* NotesViewController.swift */,
 				E8969927280038F0008A2E24 /* NotesList.swift */,
-				E896997128059762008A2E24 /* NoteView.swift */,
 			);
 			path = Controllers;
+			sourceTree = "<group>";
+		};
+		E8E4A2B92813EFC100AC6B04 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				E896997128059762008A2E24 /* NoteView.swift */,
+				E8969973280D374A008A2E24 /* NotesViewDelegate.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

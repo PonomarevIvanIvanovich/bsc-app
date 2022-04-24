@@ -8,13 +8,13 @@
 import Foundation
 import UIKit
 
-class NotesViewController: UIViewController {
+final class NotesViewController: UIViewController {
 
     weak var delegate: NotesViewDelegate?
 
     private let rightBarButton = UIBarButtonItem()
     private let backBarButton = UIBarButtonItem()
-    private let imageBackButton = UIImage(named: "chevron.left" )
+    private let imageBackButton = UIImage(named: "chevron.left")
     private let date = Date()
     private let scrollView = UIScrollView()
     var indexPath: Int?
@@ -41,7 +41,6 @@ class NotesViewController: UIViewController {
         noteTextView.font = UIFont.systemFont(ofSize: 16)
         noteTextView.isScrollEnabled = false
         noteTextView.becomeFirstResponder()
-        noteTextView.adjustableForKeyboard()
         return noteTextView
     }()
 
@@ -49,79 +48,88 @@ class NotesViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupConstraint()
-        setupRightBarButton()
         setupBackBarButton()
         loadNote()
+        setupRightBarButton()
+
     }
 
     // MARK: - setup action button
-
     @objc func tapBackBarButton() {
-        let index = saveNewNote(notes: createModel())
-        self.delegate?.goBackButton(model: createModel(), index: index)
+        guard let model = createModel() else { return }
+        guard let index = saveNewNote(notes: model) else { return }
+        self.delegate?.goBackButton(model: model, index: index)
         navigationController?.popToRootViewController(animated: true)
     }
 
     @objc func tapReadyBarButton() {
         view.endEditing(true)
-        updateNotesModel(notes: createModel())
+        guard let model  = createModel() else { return }
+        updateNotesModel(notes: model)
     }
 
     // MARK: - Save end load
-
-    func updateNotesModel(notes: NotesModel) {
-        if indexPath != nil {
+    private func updateNotesModel(notes: NotesModel) {
+        if  let indexPath = indexPath {
+            guard let check = NotesStorage.notesModel?[indexPath].isEmpt else { return }
+            if check {
+                createAlert()
+            }
             var arrayNotesModel = NotesStorage.notesModel
-            arrayNotesModel?[indexPath!] = notes
+            arrayNotesModel?[indexPath] = notes
             NotesStorage.notesModel = arrayNotesModel
         }
-        view.endEditing(true)
     }
 
-    func saveNewNote(notes: NotesModel) -> Int {
+    private func saveNewNote(notes: NotesModel) -> Int? {
+        guard let model  = createModel() else { return nil }
         var arrayNotesModel = NotesStorage.notesModel
-        if indexPath == nil {
-            arrayNotesModel?.append(createModel())
+        if let indexPath = indexPath {
+            arrayNotesModel?[indexPath] = notes
+            NotesStorage.notesModel = arrayNotesModel
+            return indexPath
+        } else {
+            arrayNotesModel?.append(model)
             NotesStorage.notesModel = arrayNotesModel
             return (arrayNotesModel?.count ?? 1) - 1
-        } else {
-            arrayNotesModel?[indexPath!] = notes
-            NotesStorage.notesModel = arrayNotesModel
-            return indexPath!
         }
     }
 
-    func createModel() -> NotesModel {
-        let newHeader = headerTextFiled.text!
-        let newNotes = noteTextView.text!
-        let newDate = dateTextFiled.text!
-        let notesModel = NotesModel(header: newHeader, notesText: newNotes, dateNotes: newDate)
-        return (notesModel)
+    private func createModel() -> NotesModel? {
+        if let newHeader = headerTextFiled.text,
+           let newNotes = noteTextView.text {
+            let newDate = setupFormatter(fotmat: "dd.MM.yyyy").string(from: date)
+            let notesModel = NotesModel(header: newHeader, notesText: newNotes, dateNotes: newDate)
+            guard notesModel.isEmpt else { return notesModel }
+            createAlert()
+            return nil
+        }
+        let notesModel = NotesModel(header: "model", notesText: "получила", dateNotes: "nil")
+        return notesModel
     }
 
-    func loadNote() {
-        if indexPath != nil {
-            if let header  = NotesStorage.notesModel?[indexPath!].header {
-                headerTextFiled.text = header
-            }
-            let date = setupFormatter().string(from: date)
-            dateTextFiled.text = date
-            if let text = NotesStorage.notesModel?[indexPath!].notesText {
-                noteTextView.text = text
-            }
+    private func loadNote() {
+        let date = setupFormatter(fotmat: "dd.MM.yyyy EEEE HH:mm").string(from: date)
+        dateTextFiled.text = date
+        guard let indexPath = indexPath else { return }
+        if let header = NotesStorage.notesModel?[indexPath].header {
+            headerTextFiled.text = header
+        }
+        if let text = NotesStorage.notesModel?[indexPath].notesText {
+            noteTextView.text = text
         }
     }
 
     // MARK: - Setup elements
-
-    func setupBackBarButton() {
+    private func setupBackBarButton() {
         navigationItem.leftBarButtonItem = backBarButton
         backBarButton.target = self
         backBarButton.image = imageBackButton
         backBarButton.action = #selector(tapBackBarButton)
+
     }
 
-    func setupRightBarButton() {
+    private func setupRightBarButton() {
         rightBarButton.title = "Готово"
         rightBarButton.target = self
         rightBarButton.action = #selector(tapReadyBarButton)
@@ -129,24 +137,24 @@ class NotesViewController: UIViewController {
     }
 
     // MARK: - Date
-    func setupFormatter() -> DateFormatter {
+
+    private func setupFormatter(fotmat: String) -> DateFormatter {
         let formatter = DateFormatter()
         formatter.timeZone = .current
         formatter.locale = .current
-        formatter.dateFormat = "dd.MM.yyyy EEEE HH:mm"
+        formatter.dateFormat = fotmat
         return formatter
     }
 
-    // MARK: - Constreint
-
-    func setupConstraint() {
+    // MARK: - Constraint
+    private func setupConstraint() {
         setupDateTextFiledConstraint()
         setupHeaderTextFiledConstraint()
         setupTextViewConstraint()
         setupScrollViewConstraint()
     }
 
-    func setupScrollViewConstraint() {
+    private func setupScrollViewConstraint() {
         view.addSubview(scrollView)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.showsVerticalScrollIndicator = false
@@ -154,12 +162,13 @@ class NotesViewController: UIViewController {
             scrollView.topAnchor.constraint(equalTo: headerTextFiled.bottomAnchor, constant: 12),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            view.keyboardLayoutGuide.topAnchor.constraint(
+                equalToSystemSpacingBelow: scrollView.bottomAnchor,
+                multiplier: 1.0)
         ])
     }
 
-    func setupDateTextFiledConstraint() {
-        dateTextFiled.text = setupFormatter().string(from: date)
+    private func setupDateTextFiledConstraint() {
         view.addSubview(dateTextFiled)
         NSLayoutConstraint.activate([
             dateTextFiled.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -169,7 +178,7 @@ class NotesViewController: UIViewController {
         ])
     }
 
-    func setupHeaderTextFiledConstraint() {
+    private func setupHeaderTextFiledConstraint() {
         view.addSubview(headerTextFiled)
         NSLayoutConstraint.activate([
             headerTextFiled.topAnchor.constraint(equalTo: dateTextFiled.bottomAnchor, constant: 20),
@@ -179,7 +188,7 @@ class NotesViewController: UIViewController {
         ])
     }
 
-    func setupTextViewConstraint() {
+    private func setupTextViewConstraint() {
         scrollView.addSubview(noteTextView)
         NSLayoutConstraint.activate([
             noteTextView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
@@ -189,47 +198,11 @@ class NotesViewController: UIViewController {
             noteTextView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
         ])
     }
-}
 
-extension UITextView {
-    func adjustableForKeyboard() {
-        let natification = NotificationCenter.default
-        natification.addObserver(
-            self,
-            selector: #selector(abjustForKeyboard),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil)
-        natification.addObserver(
-            self,
-            selector: #selector(abjustForKeyboard),
-            name: UIResponder.keyboardWillChangeFrameNotification,
-            object: nil)
-    }
-
-    @objc func abjustForKeyboard(notification: Notification) {
-        guard let keyboardValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
-            return
-        }
-
-        let keyboardScreenEndFrame = keyboardValue.cgRectValue
-        let keyboardViewAndFrame = convert(keyboardScreenEndFrame, from: window)
-
-        if notification.name == UIResponder.keyboardWillHideNotification {
-            contentInset = .zero
-        } else {
-            contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewAndFrame.height, right: 0)
-        }
-        scrollIndicatorInsets = contentInset
-        scrollRangeToVisible(selectedRange)
-    }
-}
-extension NotesViewController {
-    func notesIsEmpty() {
-        if  NotesStorage.notesModel?[indexPath!].isEmpt == true {
-            let alert = UIAlertController(title: "Заполните заметку", message: nil, preferredStyle: .alert)
-            let alertAction = UIAlertAction(title: "Ok", style: .default, handler: nil)
-            alert.addAction(alertAction)
-            present(alert, animated: true, completion: nil)
-        }
+    private func createAlert() {
+        let alert = UIAlertController(title: "Заполните заметку", message: nil, preferredStyle: .alert)
+        let alertAction = UIAlertAction(title: "Ok", style: .default, handler: nil)
+        alert.addAction(alertAction)
+        present(alert, animated: true, completion: nil)
     }
 }

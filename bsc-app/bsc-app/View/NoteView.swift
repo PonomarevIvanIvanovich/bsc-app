@@ -7,11 +7,12 @@
 
 import Foundation
 import UIKit
-class NoteView: UIView {
+
+final class NoteView: UIView {
 
     var tapClosure: (() -> Void)?
 
-    let headerlabel: UILabel = {
+    private let headerlabel: UILabel = {
         let namelabel = UILabel()
         namelabel.text = NotesStorage.notesModel?.last?.header
         namelabel.font = UIFont(name: "SFProText-Medium", size: 16)
@@ -19,7 +20,7 @@ class NoteView: UIView {
         return namelabel
     }()
 
-    let textLabel: UILabel = {
+    private let textLabel: UILabel = {
         let textLabel = UILabel()
         textLabel.text = NotesStorage.notesModel?.last?.notesText
         textLabel.font = UIFont(name: "SFProText-Medium", size: 10)
@@ -28,7 +29,7 @@ class NoteView: UIView {
         return textLabel
     }()
 
-    let dateLabel: UILabel = {
+    private let dateLabel: UILabel = {
         let dateLabel = UILabel()
         dateLabel.text = NotesStorage.notesModel?.last?.dateNotes
         dateLabel.font = UIFont(name: "SFProText-Medium", size: 10)
@@ -46,9 +47,15 @@ class NoteView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func tapView() {
+    func configureNoteView(model: NotesModel) {
+        headerlabel.text = model.header
+        dateLabel.text = model.dateNotes
+        textLabel.text = model.notesText
+    }
+
+    private func tapView() {
         let gesture = UITapGestureRecognizer(target: self, action: #selector(tapGestureRecognizer))
-        self.addGestureRecognizer(gesture)
+        addGestureRecognizer(gesture)
     }
 
     @objc func tapGestureRecognizer(sender: UITapGestureRecognizer) {
@@ -57,15 +64,15 @@ class NoteView: UIView {
 
     // MARK: - Constraint
 
-    func setupConstraint() {
+    private func setupConstraint() {
         noteViewConstraint()
         setupLabelConstraint()
         setupTextLabelConstraint()
         setupDateLabelConstraint()
     }
 
-    func setupLabelConstraint() {
-        self.addSubview(headerlabel)
+    private func setupLabelConstraint() {
+        addSubview(headerlabel)
         NSLayoutConstraint.activate([
             headerlabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             headerlabel.leftAnchor.constraint(equalTo: leftAnchor, constant: 16),
@@ -74,18 +81,18 @@ class NoteView: UIView {
         ])
     }
 
-    func setupTextLabelConstraint() {
-        self.addSubview(textLabel)
+    private func setupTextLabelConstraint() {
+        addSubview(textLabel)
         NSLayoutConstraint.activate([
-            textLabel.topAnchor.constraint(equalTo: headerlabel.bottomAnchor,constant: 4),
+            textLabel.topAnchor.constraint(equalTo: headerlabel.bottomAnchor, constant: 4),
             textLabel.leftAnchor.constraint(equalTo: leftAnchor, constant: 16),
             textLabel.rightAnchor.constraint(equalTo: rightAnchor, constant: -16),
             textLabel.heightAnchor.constraint(equalToConstant: 14)
         ])
     }
 
-    func setupDateLabelConstraint() {
-        self.addSubview(dateLabel)
+    private func setupDateLabelConstraint() {
+        addSubview(dateLabel)
         NSLayoutConstraint.activate([
             dateLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 24),
             dateLabel.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 16),
@@ -94,10 +101,10 @@ class NoteView: UIView {
         ])
     }
 
-    func noteViewConstraint() {
-        self.translatesAutoresizingMaskIntoConstraints = false
-        self.heightAnchor.constraint(equalToConstant: 90).isActive = true
-        self.backgroundColor = .white
-        self.layer.cornerRadius = 14
+    private func noteViewConstraint() {
+        translatesAutoresizingMaskIntoConstraints = false
+        heightAnchor.constraint(equalToConstant: 90).isActive = true
+        backgroundColor = .white
+        layer.cornerRadius = 14
     }
 }

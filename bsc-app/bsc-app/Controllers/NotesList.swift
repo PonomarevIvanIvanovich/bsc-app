@@ -36,9 +36,7 @@ class NotesList: UIViewController, NotesViewDelegate {
         guard let arr = NotesStorage.notesModel else { return }
         for (index, note) in arr.enumerated() {
             let noteView = NoteView()
-            noteView.headerlabel.text = note.header
-            noteView.dateLabel.text = note.dateNotes
-            noteView.textLabel.text = note.notesText
+            noteView.configureNoteView(model: note)
             noteView.tapClosure = {
                 self.createNotesViewController(index: index)
             }
@@ -50,15 +48,11 @@ class NotesList: UIViewController, NotesViewDelegate {
         if stackView.arrangedSubviews.indices.contains(index) {
             let view = stackView.arrangedSubviews[index]
             if let noteView = view as? NoteView {
-                noteView.headerlabel.text = model.header
-                noteView.dateLabel.text = model.dateNotes
-                noteView.textLabel.text = model.notesText
+                noteView.configureNoteView(model: model)
             }
         } else {
             let noteView = NoteView()
-            noteView.headerlabel.text = model.header
-            noteView.dateLabel.text = model.dateNotes
-            noteView.textLabel.text = model.notesText
+            noteView.configureNoteView(model: model)
             noteView.tapClosure = {
                 self.createNotesViewController(index: index)
             }
