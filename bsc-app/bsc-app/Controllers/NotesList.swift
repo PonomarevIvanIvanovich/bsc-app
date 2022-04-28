@@ -25,10 +25,11 @@ class NotesList: UIViewController, NotesViewDelegate {
 
     // MARK: - Create notesmodel and stackview
 
-    func createNotesViewController(index: Int?) {
+    func createNotesViewController(model: NotesModel?, index: Int?) {
         let notesViewController = NotesViewController()
-        notesViewController.delegate = self
+        notesViewController.loadNote(model)
         notesViewController.indexPath = index
+        notesViewController.delegate = self
         self.navigationController?.pushViewController(notesViewController, animated: true)
     }
 
@@ -38,7 +39,7 @@ class NotesList: UIViewController, NotesViewDelegate {
             let noteView = NoteView()
             noteView.configureNoteView(model: note)
             noteView.tapClosure = {
-                self.createNotesViewController(index: index)
+                self.createNotesViewController(model: note, index: index)
             }
             stackView.addArrangedSubview(noteView)
         }
@@ -49,12 +50,15 @@ class NotesList: UIViewController, NotesViewDelegate {
             let view = stackView.arrangedSubviews[index]
             if let noteView = view as? NoteView {
                 noteView.configureNoteView(model: model)
+                noteView.tapClosure = {
+                    self.createNotesViewController(model: model, index: index)
+                }
             }
         } else {
             let noteView = NoteView()
             noteView.configureNoteView(model: model)
             noteView.tapClosure = {
-                self.createNotesViewController(index: index)
+                self.createNotesViewController(model: model, index: index)
             }
             stackView.addArrangedSubview(noteView)
         }
@@ -63,7 +67,7 @@ class NotesList: UIViewController, NotesViewDelegate {
     // MARK: - setup
 
     @objc func tapAddNoteButton() {
-        createNotesViewController(index: nil)
+        createNotesViewController(model: nil, index: nil)
     }
 
     func setupAddNoteButton() {

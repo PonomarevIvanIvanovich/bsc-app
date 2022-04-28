@@ -16,6 +16,7 @@ final class NotesViewController: UIViewController {
     private let backBarButton = UIBarButtonItem()
     private let imageBackButton = UIImage(named: "chevron.left")
     private let date = Date()
+    private  let appDate = AppDateFormatter()
     private let scrollView = UIScrollView()
     var indexPath: Int?
 
@@ -37,6 +38,7 @@ final class NotesViewController: UIViewController {
 
     private let noteTextView: UITextView = {
         let noteTextView = UITextView()
+        noteTextView.backgroundColor = UIColor(red: 0.898, green: 0.898, blue: 0.898, alpha: 1)
         noteTextView.translatesAutoresizingMaskIntoConstraints = false
         noteTextView.font = UIFont.systemFont(ofSize: 16)
         noteTextView.isScrollEnabled = false
@@ -46,12 +48,10 @@ final class NotesViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor(red: 0.898, green: 0.898, blue: 0.898, alpha: 1)
         setupConstraint()
         setupBackBarButton()
-        loadNote()
         setupRightBarButton()
-
     }
 
     // MARK: - setup action button
@@ -71,7 +71,7 @@ final class NotesViewController: UIViewController {
     // MARK: - Save end load
     private func updateNotesModel(notes: NotesModel) {
         if  let indexPath = indexPath {
-            guard let check = NotesStorage.notesModel?[indexPath].isEmpt else { return }
+            guard let check = NotesStorage.notesModel?[indexPath].isEmptyNotes else { return }
             if check {
                 createAlert()
             }
@@ -98,26 +98,21 @@ final class NotesViewController: UIViewController {
     private func createModel() -> NotesModel? {
         if let newHeader = headerTextFiled.text,
            let newNotes = noteTextView.text {
-            let newDate = setupFormatter(fotmat: "dd.MM.yyyy").string(from: date)
-            let notesModel = NotesModel(header: newHeader, notesText: newNotes, dateNotes: newDate)
-            guard notesModel.isEmpt else { return notesModel }
-            createAlert()
-            return nil
+            let notesModel = NotesModel(header: newHeader, notesText: newNotes, dateNotes: date)
+            guard !notesModel.isEmptyNotes else {
+                createAlert()
+                return nil
+            }
+            return notesModel
         }
-        let notesModel = NotesModel(header: "model", notesText: "получила", dateNotes: "nil")
-        return notesModel
+        return nil
     }
 
-    private func loadNote() {
-        let date = setupFormatter(fotmat: "dd.MM.yyyy EEEE HH:mm").string(from: date)
-        dateTextFiled.text = date
-        guard let indexPath = indexPath else { return }
-        if let header = NotesStorage.notesModel?[indexPath].header {
-            headerTextFiled.text = header
-        }
-        if let text = NotesStorage.notesModel?[indexPath].notesText {
-            noteTextView.text = text
-        }
+    func loadNote(_ model: NotesModel?) {
+        dateTextFiled.text = appDate.format(date, dateFormat: "dd.MM.yyyy EEEE HH:mm")
+        guard let model = model else { return }
+        headerTextFiled.text = model.header
+        noteTextView.text = model.notesText
     }
 
     // MARK: - Setup elements
@@ -126,7 +121,6 @@ final class NotesViewController: UIViewController {
         backBarButton.target = self
         backBarButton.image = imageBackButton
         backBarButton.action = #selector(tapBackBarButton)
-
     }
 
     private func setupRightBarButton() {
@@ -134,16 +128,6 @@ final class NotesViewController: UIViewController {
         rightBarButton.target = self
         rightBarButton.action = #selector(tapReadyBarButton)
         navigationItem.rightBarButtonItem = rightBarButton
-    }
-
-    // MARK: - Date
-
-    private func setupFormatter(fotmat: String) -> DateFormatter {
-        let formatter = DateFormatter()
-        formatter.timeZone = .current
-        formatter.locale = .current
-        formatter.dateFormat = fotmat
-        return formatter
     }
 
     // MARK: - Constraint

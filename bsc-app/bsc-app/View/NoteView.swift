@@ -12,9 +12,10 @@ final class NoteView: UIView {
 
     var tapClosure: (() -> Void)?
 
+    private let appDate = AppDateFormatter()
+
     private let headerlabel: UILabel = {
         let namelabel = UILabel()
-        namelabel.text = NotesStorage.notesModel?.last?.header
         namelabel.font = UIFont(name: "SFProText-Medium", size: 16)
         namelabel.translatesAutoresizingMaskIntoConstraints = false
         return namelabel
@@ -22,7 +23,6 @@ final class NoteView: UIView {
 
     private let textLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.text = NotesStorage.notesModel?.last?.notesText
         textLabel.font = UIFont(name: "SFProText-Medium", size: 10)
         textLabel.textColor = UIColor(red: 0.675, green: 0.675, blue: 0.675, alpha: 1)
         textLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -31,7 +31,6 @@ final class NoteView: UIView {
 
     private let dateLabel: UILabel = {
         let dateLabel = UILabel()
-        dateLabel.text = NotesStorage.notesModel?.last?.dateNotes
         dateLabel.font = UIFont(name: "SFProText-Medium", size: 10)
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         return dateLabel
@@ -49,8 +48,9 @@ final class NoteView: UIView {
 
     func configureNoteView(model: NotesModel) {
         headerlabel.text = model.header
-        dateLabel.text = model.dateNotes
         textLabel.text = model.notesText
+        dateLabel.text = appDate.format(model.dateNotes, dateFormat: "dd.MM.yyyy")
+
     }
 
     private func tapView() {
