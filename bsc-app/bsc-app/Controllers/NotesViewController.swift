@@ -100,9 +100,11 @@ final class NotesViewController: UIViewController {
         if let newHeader = headerTextFiled.text,
            let newNotes = noteTextView.text {
             let notesModel = NotesModel(header: newHeader, notesText: newNotes, dateNotes: date)
-            guard notesModel.isEmptyNotes else { return notesModel }
+            guard !notesModel.isEmptyNotes else {
             createAlert()
             return nil
+            }
+            return notesModel
         }
         return nil
     }
@@ -121,7 +123,6 @@ final class NotesViewController: UIViewController {
         backBarButton.target = self
         backBarButton.image = imageBackButton
         backBarButton.action = #selector(tapBackBarButton)
-
     }
 
     private func setupRightBarButton() {
