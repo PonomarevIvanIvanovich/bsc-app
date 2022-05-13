@@ -35,17 +35,13 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        animatedButton()
+        upAnimatedButton()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        buttonBotConstraint?.isActive = false
         buttonTopConstraint?.isActive = true
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-
     }
 
     // MARK: - Action
@@ -55,7 +51,7 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     }
 
     @objc func tapAddNoteButton() {
-        buttonAnimated { _ in
+        downAnimatedButton { _ in
             self.createNotesViewController(model: nil, index: nil)
         }
     }
@@ -63,6 +59,7 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     @objc func topRightBarButtom() {
         noteList.setEditing(!noteList.isEditing, animated: true)
         if noteList.isEditing {
+            arrayDelete.removeAll()
             rightBarButtom.title = "Готово"
             addNoteButton.setImage(imageBasket, for: .normal)
             addNoteButton.removeTarget(self, action: #selector(tapAddNoteButton), for: .touchUpInside)
@@ -90,36 +87,29 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
         arrayDelete.removeAll()
     }
 
-    func createNotesViewController(model: NotesModel?, index: Int?) {
-        let notesViewController = NotesViewController()
-        notesViewController.loadNote(model)
-        notesViewController.indexPath = index
-        notesViewController.delegate = self
-        self.navigationController?.pushViewController(notesViewController, animated: true)
-    }
+    // MARK: - Animated
 
-    // MARK: - Setup elements
-
-    func buttonAnimated(complition: ((Bool) -> Void)?) {
+    private func downAnimatedButton(complition: ((Bool) -> Void)?) {
         UIView.animate(
-            withDuration: 0.7,
+            withDuration: 1.3,
             delay: 0.2,
             usingSpringWithDamping: 0.3,
             initialSpringVelocity: 0.8,
-            options: [], animations: {
-            self.buttonBotConstraint?.isActive = false
-            self.buttonTopConstraint?.isActive = true
-            self.view.layoutSubviews()
-        }, completion: complition)
+            options: [.curveEaseInOut],
+            animations: {
+                self.buttonBotConstraint?.isActive = false
+                self.buttonTopConstraint?.isActive = true
+                self.view.layoutSubviews()
+            }, completion: complition)
     }
 
-    private func animatedButton() {
+    private func upAnimatedButton() {
         UIView.animate(
-            withDuration: 0.7,
+            withDuration: 1.3,
             delay: 0.2,
-            usingSpringWithDamping: 0.3,
-            initialSpringVelocity: 0.8,
-            options: []
+            usingSpringWithDamping: 0.4,
+            initialSpringVelocity: 0.5,
+            options: [.curveEaseInOut]
         ) {
             if self.buttonBotConstraint == nil {
                 self.buttonBotConstraint = self.addNoteButton.bottomAnchor.constraint(
@@ -130,6 +120,8 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
             self.view.layoutSubviews()
         }
     }
+
+    // MARK: - Setup elements
 
     private func setupNoteList() {
         noteList.allowsSelectionDuringEditing = true
@@ -163,6 +155,14 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
         alert.addAction(alertAction)
         present(alert, animated: true, completion: nil)
     }
+
+    private func createNotesViewController(model: NotesModel?, index: Int?) {
+        let notesViewController = NotesViewController()
+        notesViewController.loadNote(model)
+        notesViewController.indexPath = index
+        notesViewController.delegate = self
+        self.navigationController?.pushViewController(notesViewController, animated: true)
+    }
     // MARK: - Setup constraint
 
     private func setupConstraint() {
@@ -184,7 +184,7 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     private func setupAddNoteButtonConstraint() {
         view.addSubview(addNoteButton)
         addNoteButton.translatesAutoresizingMaskIntoConstraints = false
-        buttonTopConstraint = addNoteButton.topAnchor.constraint(equalTo: view.bottomAnchor)
+        buttonTopConstraint = addNoteButton.topAnchor.constraint(equalTo: view.bottomAnchor, constant: 15)
         addNoteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
         addNoteButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         addNoteButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
@@ -215,11 +215,9 @@ extension NotesListViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if !tableView.isEditing {
-            buttonAnimated { _ in
             self.createNotesViewController(
                 model: NotesStorage.notesModel?[indexPath.row],
                 index: indexPath.row)
-            }
         } else {
             self.arrayDelete.append(indexPath.row)
         }
@@ -239,7 +237,7 @@ extension NotesListViewController: UITableViewDelegate {
             if cell.isSelected {
                 for (index, element) in arrayDelete.enumerated() {
                     guard element == indexPath.row else { continue }
-                        arrayDelete.remove(at: index)
+                    arrayDelete.remove(at: index)
                 }
                 tableView.deselectRow(at: indexPath, animated: false)
                 return nil

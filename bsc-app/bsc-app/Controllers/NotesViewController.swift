@@ -101,8 +101,8 @@ final class NotesViewController: UIViewController {
            let newNotes = noteTextView.text {
             let notesModel = NotesModel(header: newHeader, notesText: newNotes, dateNotes: date)
             guard !notesModel.isEmptyNotes else {
-            createAlert()
-            return nil
+                createAlert()
+                return nil
             }
             return notesModel
         }
@@ -110,11 +110,11 @@ final class NotesViewController: UIViewController {
     }
 
     func loadNote(_ model: NotesModel?) {
-           dateTextFiled.text = appDate.format(date, dateFormat: "dd.MM.yyyy EEEE HH:mm")
-           guard let model = model else { return }
-           headerTextFiled.text = model.header
-           noteTextView.text = model.notesText
-       }
+        dateTextFiled.text = appDate.format(date, dateFormat: "dd.MM.yyyy EEEE HH:mm")
+        guard let model = model else { return }
+        headerTextFiled.text = model.header
+        noteTextView.text = model.notesText
+    }
 
     // MARK: - Setup elements
 

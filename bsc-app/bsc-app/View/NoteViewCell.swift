@@ -34,6 +34,8 @@ final class NoteViewCell: UITableViewCell {
     }()
 
     private let checkBoxView = UIImageView()
+    private var checkLeadingConstraint: NSLayoutConstraint?
+    private var checkTrailingConstraint: NSLayoutConstraint?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -55,15 +57,6 @@ final class NoteViewCell: UITableViewCell {
         setupDateLabelConstraint()
     }
 
-    func checkEditing() {
-        if isEditing {
-            addSubview(checkBoxView)
-            setupChekConstraint()
-        } else {
-            checkBoxView.removeFromSuperview()
-        }
-    }
-
     func checkSelected() {
         if isSelected {
             checkBoxView.image = UIImage(named: "Check")
@@ -79,15 +72,19 @@ final class NoteViewCell: UITableViewCell {
 
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
-        checkEditing()
+        setupChekConstraint()
     }
 
     func setupChekConstraint() {
         checkBoxView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(checkBoxView)
+        checkTrailingConstraint = checkBoxView.rightAnchor.constraint(equalTo: contentView.leftAnchor, constant: -10)
+        checkTrailingConstraint?.isActive = true
+        checkLeadingConstraint = checkBoxView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20)
         NSLayoutConstraint.activate([
-            checkBoxView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
-            checkBoxView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -37),
-            checkBoxView.heightAnchor.constraint(equalToConstant: 16)
+            checkBoxView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -37),
+            checkBoxView.heightAnchor.constraint(equalToConstant: 16),
+            checkBoxView.widthAnchor.constraint(equalToConstant: 16)
         ])
     }
 
@@ -114,7 +111,6 @@ final class NoteViewCell: UITableViewCell {
     private func setupDateLabelConstraint() {
         contentView.addSubview(dateLabel)
         NSLayoutConstraint.activate([
-            dateLabel.topAnchor.constraint(equalTo: textLabelCell.bottomAnchor, constant: 24),
             dateLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             dateLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
             dateLabel.heightAnchor.constraint(equalToConstant: 10)
@@ -122,7 +118,6 @@ final class NoteViewCell: UITableViewCell {
     }
 
     private func noteViewConstraint() {
-        heightAnchor.constraint(equalToConstant: 90).isActive = true
         backgroundColor = .white
         self.layer.borderWidth = 2
         self.layer.borderColor = .init(gray: 0, alpha: 0.1)
