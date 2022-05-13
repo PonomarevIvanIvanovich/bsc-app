@@ -18,8 +18,10 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     private let imageBasket = UIImage(named: "Vector")
     private let imagePlus = UIImage(named: "plus")
     private var config = UIButton.Configuration.filled()
-    private var addButtonAnchor: NSLayoutConstraint?
+    private var buttonTopConstraint: NSLayoutConstraint?
+    private var buttonBotConstraint: NSLayoutConstraint?
     private var lastSelectedIndexPath: IndexPath?
+    private var arrayDelete = [Int]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,25 +35,17 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        UIView.animate(
-            withDuration: 2,
-            delay: 1,
-            usingSpringWithDamping: 0.5,
-            initialSpringVelocity: 0.5,
-            options: []
-        ) {
-            self.addButtonAnchor?.isActive = false
-            self.addNoteButton.bottomAnchor.constraint(
-                equalTo: self.view.safeAreaLayoutGuide.bottomAnchor
-            ).isActive = true
-            self.view.layoutSubviews()
-        }
+        animatedButton()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        addButtonAnchor = addNoteButton.topAnchor.constraint(equalTo: view.bottomAnchor)
-        addButtonAnchor?.isActive = true
+        buttonTopConstraint?.isActive = true
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
     }
 
     // MARK: - Action
@@ -61,7 +55,9 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     }
 
     @objc func tapAddNoteButton() {
-        createNotesViewController(model: nil, index: nil)
+        buttonAnimated { _ in
+            self.createNotesViewController(model: nil, index: nil)
+        }
     }
 
     @objc func topRightBarButtom() {
@@ -80,7 +76,18 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     }
 
     @objc func deliteButton() {
-        print("asda")
+        if arrayDelete.isEmpty {
+            createAlert()
+        } else {
+            let arraySorted = arrayDelete.sorted(by: > )
+            var array = NotesStorage.notesModel
+            for index in arraySorted {
+                array?.remove(at: index)
+            }
+            NotesStorage.notesModel = array
+            noteList.reloadData()
+        }
+        arrayDelete.removeAll()
     }
 
     func createNotesViewController(model: NotesModel?, index: Int?) {
@@ -92,6 +99,37 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     }
 
     // MARK: - Setup elements
+
+    func buttonAnimated(complition: ((Bool) -> Void)?) {
+        UIView.animate(
+            withDuration: 0.7,
+            delay: 0.2,
+            usingSpringWithDamping: 0.3,
+            initialSpringVelocity: 0.8,
+            options: [], animations: {
+            self.buttonBotConstraint?.isActive = false
+            self.buttonTopConstraint?.isActive = true
+            self.view.layoutSubviews()
+        }, completion: complition)
+    }
+
+    private func animatedButton() {
+        UIView.animate(
+            withDuration: 0.7,
+            delay: 0.2,
+            usingSpringWithDamping: 0.3,
+            initialSpringVelocity: 0.8,
+            options: []
+        ) {
+            if self.buttonBotConstraint == nil {
+                self.buttonBotConstraint = self.addNoteButton.bottomAnchor.constraint(
+                    equalTo: self.view.bottomAnchor, constant: -60)
+            }
+            self.buttonTopConstraint?.isActive = false
+            self.buttonBotConstraint?.isActive = true
+            self.view.layoutSubviews()
+        }
+    }
 
     private func setupNoteList() {
         noteList.allowsSelectionDuringEditing = true
@@ -116,14 +154,21 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
         addNoteButton.setImage(imagePlus, for: .normal)
         addNoteButton.contentVerticalAlignment = .center
         addNoteButton.contentHorizontalAlignment = .center
+        addNoteButton.addTarget(self, action: #selector(tapAddNoteButton), for: .touchUpInside)
     }
+
+    private func createAlert() {
+        let alert = UIAlertController(title: "Вы не выбрали ни одной ячейки", message: nil, preferredStyle: .alert)
+        let alertAction = UIAlertAction(title: "Ok", style: .default, handler: nil)
+        alert.addAction(alertAction)
+        present(alert, animated: true, completion: nil)
+    }
+    // MARK: - Setup constraint
 
     private func setupConstraint() {
         setupTableListConstraint()
         setupAddNoteButtonConstraint()
     }
-
-    // MARK: - Setup constraint
 
     private func setupTableListConstraint() {
         view.addSubview(noteList)
@@ -139,11 +184,10 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     private func setupAddNoteButtonConstraint() {
         view.addSubview(addNoteButton)
         addNoteButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            addNoteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            addNoteButton.heightAnchor.constraint(equalToConstant: 50),
-            addNoteButton.widthAnchor.constraint(equalToConstant: 50)
-        ])
+        buttonTopConstraint = addNoteButton.topAnchor.constraint(equalTo: view.bottomAnchor)
+        addNoteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
+        addNoteButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        addNoteButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
     }
 }
 
@@ -171,15 +215,14 @@ extension NotesListViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if !tableView.isEditing {
-            return createNotesViewController(model: NotesStorage.notesModel?[indexPath.row], index: indexPath.row)
+            buttonAnimated { _ in
+            self.createNotesViewController(
+                model: NotesStorage.notesModel?[indexPath.row],
+                index: indexPath.row)
+            }
+        } else {
+            self.arrayDelete.append(indexPath.row)
         }
-    }
-
-    func tableView(
-        _ tableView: UITableView,
-        editingStyleForRowAt indexPath: IndexPath
-    ) -> UITableViewCell.EditingStyle {
-        return .none
     }
 
     func tableView(_ tableView: UITableView, willDeselectRowAt indexPath: IndexPath) -> IndexPath? {
@@ -194,10 +237,21 @@ extension NotesListViewController: UITableViewDelegate {
         lastSelectedIndexPath = indexPath
         if let cell = tableView.cellForRow(at: indexPath) {
             if cell.isSelected {
+                for (index, element) in arrayDelete.enumerated() {
+                    guard element == indexPath.row else { continue }
+                        arrayDelete.remove(at: index)
+                }
                 tableView.deselectRow(at: indexPath, animated: false)
                 return nil
             }
         }
         return indexPath
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        editingStyleForRowAt indexPath: IndexPath
+    ) -> UITableViewCell.EditingStyle {
+        return .none
     }
 }
