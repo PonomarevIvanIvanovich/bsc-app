@@ -13,6 +13,7 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     private let addNoteButton = UIButton()
     private let noteList = UITableView(frame: .zero, style: .plain)
     private let identifier = "Cell"
+    private let parsIdenifire = "ParsCell"
     private let appDate = AppDateFormatter()
     private let rightBarButtom = UIBarButtonItem()
     private let imageBasket = UIImage(named: "Vector")
@@ -21,7 +22,8 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     private var buttonTopConstraint: NSLayoutConstraint?
     private var buttonBotConstraint: NSLayoutConstraint?
     private var lastSelectedIndexPath: IndexPath?
-    private var arrayDelete = [Int]()
+    private var arrayDelete = [IndexPath]()
+    private var arrayParsNote = [WelcomeNotes]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,6 +31,7 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
         setupNoteList()
         setupRightBarButtom()
         setupAddNoteButton()
+        createArrayPars()
         view.backgroundColor = UIColor(red: 0.898, green: 0.898, blue: 0.898, alpha: 1)
         title = "Заметки"
     }
@@ -46,13 +49,17 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
 
     // MARK: - Action
 
-    func goBackButton(model: NotesModel, index: Int) {
+    func goBackButton(model: NotesModel?, parsModel: WelcomeNotes?, index: Int) {
+        guard let parsModel = parsModel else {
+            return  noteList.reloadData()
+        }
+        arrayParsNote[index] = parsModel
         noteList.reloadData()
     }
 
     @objc func tapAddNoteButton() {
         downAnimatedButton { _ in
-            self.createNotesViewController(model: nil, index: nil)
+            self.createNotesViewController(parsModel: nil, model: nil, index: nil)
         }
     }
 
@@ -75,14 +82,20 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
         if arrayDelete.isEmpty {
             createAlert()
         } else {
-            let arraySorted = arrayDelete.sorted(by: > )
+            var arraySorted = arrayDelete.sorted(by: > )
+            print(arraySorted)
             var array = NotesStorage.notesModel
-            for index in arraySorted {
-                array?.remove(at: index)
+            for indexPath in arraySorted {
+                if indexPath.section == 1 {
+                    array?.remove(at: indexPath.row)
+                } else {
+                    arrayParsNote.remove(at: indexPath.row)
+                }
             }
             NotesStorage.notesModel = array
             noteList.reloadData()
         }
+
         arrayDelete.removeAll()
     }
 
@@ -127,6 +140,7 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
         noteList.rowHeight = 90
         noteList.separatorStyle = .none
         noteList.backgroundColor = UIColor(red: 0.898, green: 0.898, blue: 0.898, alpha: 1)
+        noteList.register(NoteViewCell.self, forCellReuseIdentifier: parsIdenifire)
         noteList.register(NoteViewCell.self, forCellReuseIdentifier: identifier)
         noteList.dataSource = self
         noteList.delegate = self
@@ -155,13 +169,17 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
         present(alert, animated: true, completion: nil)
     }
 
-    private func createNotesViewController(model: NotesModel?, index: Int?) {
+    private func createNotesViewController(parsModel: WelcomeNotes?, model: NotesModel?, index: IndexPath?) {
         let notesViewController = NotesViewController()
-        notesViewController.loadNote(model)
-        notesViewController.indexPath = index
+        if let parsModel = parsModel {
+            notesViewController.loadNote(parsModel: parsModel, model: nil)
+        } else {
+        notesViewController.loadNote(parsModel: nil, model: model)
+        }
         notesViewController.delegate = self
         self.navigationController?.pushViewController(notesViewController, animated: true)
     }
+
     // MARK: - Setup constraint
 
     private func setupConstraint() {
@@ -188,21 +206,49 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
         addNoteButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         addNoteButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
     }
+
+    func createArrayPars() {
+        let worker = Worker()
+        worker.request(complition: { (welcomeNotes, _) in
+            guard let welcome = welcomeNotes else { return }
+            self.arrayParsNote = welcome
+            self.noteList.reloadData()
+        })
+    }
 }
 
 extension NotesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        NotesStorage.notesModel?.count ?? 0
+        if section == 1 {
+            return NotesStorage.notesModel?.count ?? 0
+        } else {
+            return arrayParsNote.count
+        }
+    }
+
+    func numberOfSections(in tableView: UITableView) -> Int {
+        if arrayParsNote.isEmpty {
+            return 1
+        } else {
+            return 2
+        }
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let cell = noteList.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? NoteViewCell {
-            cell.headerlabel.text = NotesStorage.notesModel?[indexPath.row].header
-            if let date = NotesStorage.notesModel?[indexPath.row].dateNotes {
-                cell.dateLabel.text = appDate.format(date, dateFormat: "dd.MM.yyyy")
+        if let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? NoteViewCell {
+            if indexPath.section == 0 {
+                cell.headerlabel.text = arrayParsNote[indexPath.row].header
+                cell.textLabelCell.text = arrayParsNote[indexPath.row].text
+                cell.dateLabel.text = appDate.format(arrayParsNote[indexPath.row].date, dateFormat: "dd.MM.yyyy")
+                return cell
+            } else {
+                cell.headerlabel.text = NotesStorage.notesModel?[indexPath.row].header
+                if let date = NotesStorage.notesModel?[indexPath.row].dateNotes {
+                    cell.dateLabel.text = appDate.format(date, dateFormat: "dd.MM.yyyy")
+                }
+                cell.textLabelCell.text = NotesStorage.notesModel?[indexPath.row].notesText
+                return cell
             }
-            cell.textLabelCell.text = NotesStorage.notesModel?[indexPath.row].notesText
-            return cell
         }
         let cell = UITableViewCell(style: .default, reuseIdentifier: identifier)
         cell.textLabel?.text = "error"
@@ -214,20 +260,26 @@ extension NotesListViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if !tableView.isEditing {
+            if indexPath.section == 0 {
                 self.createNotesViewController(
+                    parsModel: arrayParsNote[indexPath.row],
+                    model: nil,
+                    index: indexPath)
+            } else {
+                self.createNotesViewController(
+                    parsModel: nil,
                     model: NotesStorage.notesModel?[indexPath.row],
-                    index: indexPath.row)
+                    index: indexPath)
+            }
         } else {
-            self.arrayDelete.append(indexPath.row)
+            arrayDelete.append(indexPath)
+            print(arrayDelete)
         }
     }
 
     func tableView(_ tableView: UITableView, willDeselectRowAt indexPath: IndexPath) -> IndexPath? {
-        if lastSelectedIndexPath == indexPath {
+        guard lastSelectedIndexPath == indexPath else { return nil }
             return indexPath
-        } else {
-            return nil
-        }
     }
 
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
@@ -235,10 +287,11 @@ extension NotesListViewController: UITableViewDelegate {
         if let cell = tableView.cellForRow(at: indexPath) {
             if cell.isSelected {
                 for (index, element) in arrayDelete.enumerated() {
-                    guard element == indexPath.row else { continue }
+                    guard element == indexPath else { continue }
                     arrayDelete.remove(at: index)
+                    print(arrayDelete)
                 }
-                tableView.deselectRow(at: indexPath, animated: false)
+                tableView.deselectRow(at: indexPath, animated: true)
                 return nil
             }
         }
