@@ -100,19 +100,21 @@ final class NotesViewController: UIViewController {
         if let newHeader = headerTextFiled.text,
            let newNotes = noteTextView.text {
             let notesModel = NotesModel(header: newHeader, notesText: newNotes, dateNotes: date)
-            guard notesModel.isEmptyNotes else { return notesModel }
-            createAlert()
-            return nil
+            guard !notesModel.isEmptyNotes else {
+                createAlert()
+                return nil
+            }
+            return notesModel
         }
         return nil
     }
 
     func loadNote(_ model: NotesModel?) {
-           dateTextFiled.text = appDate.format(date, dateFormat: "dd.MM.yyyy EEEE HH:mm")
-           guard let model = model else { return }
-           headerTextFiled.text = model.header
-           noteTextView.text = model.notesText
-       }
+        dateTextFiled.text = appDate.format(date, dateFormat: "dd.MM.yyyy EEEE HH:mm")
+        guard let model = model else { return }
+        headerTextFiled.text = model.header
+        noteTextView.text = model.notesText
+    }
 
     // MARK: - Setup elements
 
@@ -121,7 +123,6 @@ final class NotesViewController: UIViewController {
         backBarButton.target = self
         backBarButton.image = imageBackButton
         backBarButton.action = #selector(tapBackBarButton)
-
     }
 
     private func setupRightBarButton() {

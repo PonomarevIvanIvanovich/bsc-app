@@ -8,9 +8,10 @@
 import Foundation
 
 final class NotesStorage {
+    static let key = "saveData"
     static var notesModel: [NotesModel]? {
         get {
-            guard let savedData = UserDefaults.standard.object(forKey: "saveData") as? Data,
+            guard let savedData = UserDefaults.standard.data(forKey: key),
                   let decodedModel = try? JSONDecoder().decode([NotesModel].self, from: savedData)
             else {return []}
             return decodedModel
@@ -19,7 +20,7 @@ final class NotesStorage {
             let defaults = UserDefaults.standard
             if let notesModel = newValue {
                 if let saveData = try? JSONEncoder().encode(notesModel) {
-                    defaults.set(saveData, forKey: "saveData")
+                    defaults.set(saveData, forKey: key)
                 }
             }
         }
