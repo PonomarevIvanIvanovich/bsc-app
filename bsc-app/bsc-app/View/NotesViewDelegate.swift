@@ -8,5 +8,5 @@
 import Foundation
 
 protocol NotesViewDelegate: AnyObject {
-    func goBackButton(model: NotesModel?, parsModel: WelcomeNotes?, index: Int)
+    func goBackButton(model: NotesModel?, index: Int?)
 }

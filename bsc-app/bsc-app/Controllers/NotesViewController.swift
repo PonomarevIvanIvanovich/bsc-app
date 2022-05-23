@@ -19,6 +19,7 @@ final class NotesViewController: UIViewController {
     private let appDate = AppDateFormatter()
     private let scrollView = UIScrollView()
     var indexPath: IndexPath?
+    var isNoteSave = true
 
     private let headerTextFiled: UITextField = {
         let headerTextFiled = UITextField()
@@ -56,90 +57,72 @@ final class NotesViewController: UIViewController {
     // MARK: - setup action button
 
     @objc func tapBackBarButton() {
-        if indexPath?.section == 0 {
-            guard let model = createModel().parsModel else { return }
-            self.delegate?.goBackButton(model: nil, parsModel: model, index: indexPath?.row ?? 0)
+        guard let model = createModel() else { return }
+        if let index = indexPath?.row {
+            saveNewNote(model: model)
+            self.delegate?.goBackButton(model: model, index: index)
             navigationController?.popToRootViewController(animated: true)
         } else {
-            guard let model = createModel().model,
-                  let index = saveNewNote(model: model) else { return }
-            self.delegate?.goBackButton(model: model, parsModel: nil, index: index)
+            saveNewNote(model: model)
+            self.delegate?.goBackButton(model: model, index: nil)
             navigationController?.popToRootViewController(animated: true)
         }
     }
 
     @objc func tapReadyBarButton() {
         view.endEditing(true)
-        guard let model  = createModel().model else { return }
-        updateNotesModel(model: model, parsModel: nil)
-        guard let model  = createModel().parsModel else { return }
-        updateNotesModel(model: nil, parsModel: model)
+        guard let model  = createModel() else { return }
+        updateNotesModel(model: model)
     }
 
     // MARK: - Save end load
 
-    private func updateNotesModel(model: NotesModel?, parsModel: WelcomeNotes?) {
-        if indexPath?.section == 1 {
+    private func updateNotesModel(model: NotesModel) {
         if  let indexPath = indexPath {
             guard let check = NotesStorage.notesModel?[indexPath.row].isEmptyNotes else { return }
             if check {
                 createAlert()
             }
-            var arrayNotesModel = NotesStorage.notesModel
-            guard let model = model else { return }
-            arrayNotesModel?[indexPath.row] = model
-            NotesStorage.notesModel = arrayNotesModel
-        }
-        } else {
-            guard let index = indexPath?.row else { return }
-            self.delegate?.goBackButton(model: nil, parsModel: parsModel, index: index)
+            if model.isSave {
+                var arrayNotesModel = NotesStorage.notesModel
+                arrayNotesModel?[indexPath.row] = model
+                NotesStorage.notesModel = arrayNotesModel
+            }
         }
     }
 
-    private func saveNewNote(model: NotesModel) -> Int? {
-        if indexPath?.section == 0 {
-            return nil
-        }
+    private func saveNewNote(model: NotesModel) {
         var arrayNotesModel = NotesStorage.notesModel
+        guard model.isSave else { return }
         if let indexPath = indexPath {
             arrayNotesModel?[indexPath.row] = model
             NotesStorage.notesModel = arrayNotesModel
-            return indexPath.row
         } else {
             arrayNotesModel?.append(model)
             NotesStorage.notesModel = arrayNotesModel
-            return (arrayNotesModel?.count ?? 1) - 1
         }
     }
 
-    private func createModel() -> (model: NotesModel?, parsModel: WelcomeNotes?) {
+    private func createModel() -> NotesModel? {
         if let newHeader = headerTextFiled.text,
            let newNotes = noteTextView.text {
-            if indexPath?.section == 0 {
-                let parsModel = WelcomeNotes(header: newHeader, text: newNotes, date: date)
-                return (model: nil, parsModel: parsModel)
-            } else {
-                let notesModel = NotesModel(header: newHeader, notesText: newNotes, dateNotes: date)
-                guard !notesModel.isEmptyNotes else {
-                    createAlert()
-                    return (model: nil, parsModel: nil)
-                }
-                return (model: notesModel, parsModel: nil)
+            let notesModel = NotesModel(header: newHeader, notesText: newNotes, dateNotes: date, isSave: isNoteSave)
+            guard !notesModel.isEmptyNotes else {
+                createAlert()
+                return nil
             }
+            return notesModel
         }
-        return (nil, nil)
+        return nil
     }
 
-    func loadNote(parsModel: WelcomeNotes?, model: NotesModel?) {
-           dateTextFiled.text = appDate.format(date, dateFormat: "dd.MM.yyyy EEEE HH:mm")
-        if let model = model {
-           headerTextFiled.text = model.header
-           noteTextView.text = model.notesText
-        } else {
-            headerTextFiled.text = parsModel?.header
-            noteTextView.text = parsModel?.text
-        }
-       }
+    func loadNote(model: NotesModel?) {
+        dateTextFiled.text = appDate.format(date, dateFormat: "dd.MM.yyyy EEEE HH:mm")
+        guard let model = model else { return }
+        headerTextFiled.text = model.header
+        noteTextView.text = model.notesText
+        isNoteSave = model.isSave
+    }
 
     // MARK: - Setup elements
 

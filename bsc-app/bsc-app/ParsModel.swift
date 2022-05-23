@@ -7,9 +7,8 @@
 
 import Foundation
 
-struct WelcomeNotes: Codable {
-    let header, text: String
+struct ParsModel: Codable {
+    let header: String
+    let text: String
     let date: Date
 }
-
-typealias Welcome = [WelcomeNotes]

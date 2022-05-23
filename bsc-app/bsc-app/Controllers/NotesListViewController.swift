@@ -13,7 +13,6 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     private let addNoteButton = UIButton()
     private let noteList = UITableView(frame: .zero, style: .plain)
     private let identifier = "Cell"
-    private let parsIdenifire = "ParsCell"
     private let appDate = AppDateFormatter()
     private let rightBarButtom = UIBarButtonItem()
     private let imageBasket = UIImage(named: "Vector")
@@ -23,7 +22,7 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     private var buttonBotConstraint: NSLayoutConstraint?
     private var lastSelectedIndexPath: IndexPath?
     private var arrayDelete = [IndexPath]()
-    private var arrayParsNote = [WelcomeNotes]()
+    let filter = FilterNotes()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,7 +30,9 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
         setupNoteList()
         setupRightBarButtom()
         setupAddNoteButton()
-        createArrayPars()
+        filter.loadNotes {
+            self.noteList.reloadData()
+        }
         view.backgroundColor = UIColor(red: 0.898, green: 0.898, blue: 0.898, alpha: 1)
         title = "Заметки"
     }
@@ -49,23 +50,32 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
 
     // MARK: - Action
 
-    func goBackButton(model: NotesModel?, parsModel: WelcomeNotes?, index: Int) {
-        guard let parsModel = parsModel else {
-            return  noteList.reloadData()
+    func goBackButton(model: NotesModel?, index: Int?) {
+        guard let newModel = model else { return }
+        if let index = index {
+            if filter.arrayModel.indices.contains(index) {
+                filter.arrayModel[index] = newModel
+            } else {
+                filter.arrayModel.append(newModel)
+            }
+            noteList.reloadData()
+        } else {
+            filter.loadNotes {
+                self.noteList.reloadData()
+            }
         }
-        arrayParsNote[index] = parsModel
-        noteList.reloadData()
     }
 
     @objc func tapAddNoteButton() {
         downAnimatedButton { _ in
-            self.createNotesViewController(parsModel: nil, model: nil, index: nil)
+            self.createNotesViewController(model: nil, index: nil)
         }
     }
 
     @objc func topRightBarButtom() {
         noteList.setEditing(!noteList.isEditing, animated: true)
         if noteList.isEditing {
+            arrayDelete.removeAll()
             rightBarButtom.title = "Готово"
             addNoteButton.setImage(imageBasket, for: .normal)
             addNoteButton.removeTarget(self, action: #selector(tapAddNoteButton), for: .touchUpInside)
@@ -82,20 +92,17 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
         if arrayDelete.isEmpty {
             createAlert()
         } else {
-            var arraySorted = arrayDelete.sorted(by: > )
-            print(arraySorted)
+            let arraySorted = arrayDelete.sorted(by: >)
             var array = NotesStorage.notesModel
             for indexPath in arraySorted {
-                if indexPath.section == 1 {
+                if filter.arrayModel[indexPath.row].isSave {
                     array?.remove(at: indexPath.row)
-                } else {
-                    arrayParsNote.remove(at: indexPath.row)
                 }
+                filter.arrayModel.remove(at: indexPath.row)
             }
             NotesStorage.notesModel = array
             noteList.reloadData()
         }
-
         arrayDelete.removeAll()
     }
 
@@ -103,7 +110,7 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
 
     private func downAnimatedButton(complition: ((Bool) -> Void)?) {
         UIView.animate(
-            withDuration: 0.7,
+            withDuration: 1.3,
             delay: 0.2,
             usingSpringWithDamping: 0.3,
             initialSpringVelocity: 0.8,
@@ -117,10 +124,10 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
 
     private func upAnimatedButton() {
         UIView.animate(
-            withDuration: 0.7,
+            withDuration: 1.3,
             delay: 0.2,
-            usingSpringWithDamping: 0.3,
-            initialSpringVelocity: 0.8,
+            usingSpringWithDamping: 0.4,
+            initialSpringVelocity: 0.5,
             options: [.curveEaseInOut]
         ) {
             if self.buttonBotConstraint == nil {
@@ -140,7 +147,6 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
         noteList.rowHeight = 90
         noteList.separatorStyle = .none
         noteList.backgroundColor = UIColor(red: 0.898, green: 0.898, blue: 0.898, alpha: 1)
-        noteList.register(NoteViewCell.self, forCellReuseIdentifier: parsIdenifire)
         noteList.register(NoteViewCell.self, forCellReuseIdentifier: identifier)
         noteList.dataSource = self
         noteList.delegate = self
@@ -169,14 +175,11 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
         present(alert, animated: true, completion: nil)
     }
 
-    private func createNotesViewController(parsModel: WelcomeNotes?, model: NotesModel?, index: IndexPath?) {
+    private func createNotesViewController(model: NotesModel?, index: IndexPath?) {
         let notesViewController = NotesViewController()
-        if let parsModel = parsModel {
-            notesViewController.loadNote(parsModel: parsModel, model: nil)
-        } else {
-        notesViewController.loadNote(parsModel: nil, model: model)
-        }
+        notesViewController.indexPath = index
         notesViewController.delegate = self
+        notesViewController.loadNote(model: model)
         self.navigationController?.pushViewController(notesViewController, animated: true)
     }
 
@@ -201,54 +204,24 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     private func setupAddNoteButtonConstraint() {
         view.addSubview(addNoteButton)
         addNoteButton.translatesAutoresizingMaskIntoConstraints = false
-        buttonTopConstraint = addNoteButton.topAnchor.constraint(equalTo: view.bottomAnchor)
+        buttonTopConstraint = addNoteButton.topAnchor.constraint(equalTo: view.bottomAnchor, constant: 15)
         addNoteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
         addNoteButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         addNoteButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
-    }
-
-    func createArrayPars() {
-        let worker = Worker()
-        worker.request(complition: { (welcomeNotes, _) in
-            guard let welcome = welcomeNotes else { return }
-            self.arrayParsNote = welcome
-            self.noteList.reloadData()
-        })
     }
 }
 
 extension NotesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 1 {
-            return NotesStorage.notesModel?.count ?? 0
-        } else {
-            return arrayParsNote.count
-        }
-    }
-
-    func numberOfSections(in tableView: UITableView) -> Int {
-        if arrayParsNote.isEmpty {
-            return 1
-        } else {
-            return 2
-        }
+        return filter.arrayModel.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? NoteViewCell {
-            if indexPath.section == 0 {
-                cell.headerlabel.text = arrayParsNote[indexPath.row].header
-                cell.textLabelCell.text = arrayParsNote[indexPath.row].text
-                cell.dateLabel.text = appDate.format(arrayParsNote[indexPath.row].date, dateFormat: "dd.MM.yyyy")
-                return cell
-            } else {
-                cell.headerlabel.text = NotesStorage.notesModel?[indexPath.row].header
-                if let date = NotesStorage.notesModel?[indexPath.row].dateNotes {
-                    cell.dateLabel.text = appDate.format(date, dateFormat: "dd.MM.yyyy")
-                }
-                cell.textLabelCell.text = NotesStorage.notesModel?[indexPath.row].notesText
-                return cell
-            }
+            cell.headerlabel.text = filter.arrayModel[indexPath.row].header
+            cell.textLabelCell.text = filter.arrayModel[indexPath.row].notesText
+            cell.dateLabel.text = appDate.format(filter.arrayModel[indexPath.row].dateNotes, dateFormat: "dd.MM.yyyy")
+            return cell
         }
         let cell = UITableViewCell(style: .default, reuseIdentifier: identifier)
         cell.textLabel?.text = "error"
@@ -260,26 +233,15 @@ extension NotesListViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if !tableView.isEditing {
-            if indexPath.section == 0 {
-                self.createNotesViewController(
-                    parsModel: arrayParsNote[indexPath.row],
-                    model: nil,
-                    index: indexPath)
-            } else {
-                self.createNotesViewController(
-                    parsModel: nil,
-                    model: NotesStorage.notesModel?[indexPath.row],
-                    index: indexPath)
-            }
+            self.createNotesViewController(model: filter.arrayModel[indexPath.row], index: indexPath)
         } else {
             arrayDelete.append(indexPath)
-            print(arrayDelete)
         }
     }
 
     func tableView(_ tableView: UITableView, willDeselectRowAt indexPath: IndexPath) -> IndexPath? {
         guard lastSelectedIndexPath == indexPath else { return nil }
-            return indexPath
+        return indexPath
     }
 
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
@@ -289,7 +251,6 @@ extension NotesListViewController: UITableViewDelegate {
                 for (index, element) in arrayDelete.enumerated() {
                     guard element == indexPath else { continue }
                     arrayDelete.remove(at: index)
-                    print(arrayDelete)
                 }
                 tableView.deselectRow(at: indexPath, animated: true)
                 return nil
