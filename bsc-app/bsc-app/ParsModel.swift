@@ -11,4 +11,5 @@ struct ParsModel: Codable {
     let header: String
     let text: String
     let date: Date
+    let userShareIcon: String?
 }

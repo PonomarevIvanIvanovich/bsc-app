@@ -33,6 +33,13 @@ final class NoteViewCell: UITableViewCell {
         return dateLabel
     }()
 
+    let userShareIcon: UIImageView = {
+        let userShareIcon = UIImageView()
+        userShareIcon.layer.cornerRadius = 25
+        userShareIcon.translatesAutoresizingMaskIntoConstraints = false
+        return userShareIcon
+    }()
+
     private let checkBoxView = UIImageView()
     private var checkLeadingConstraint: NSLayoutConstraint?
     private var checkTrailingConstraint: NSLayoutConstraint?
@@ -73,6 +80,16 @@ final class NoteViewCell: UITableViewCell {
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
         setupChekConstraint()
+    }
+
+    func setupUserShareIconConstraint() {
+        addSubview(userShareIcon)
+        NSLayoutConstraint.activate([
+            userShareIcon.rightAnchor.constraint(equalTo: rightAnchor, constant: -10),
+            userShareIcon.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            userShareIcon.widthAnchor.constraint(equalToConstant: 24),
+            userShareIcon.heightAnchor.constraint(equalToConstant: 24)
+        ])
     }
 
     func setupChekConstraint() {

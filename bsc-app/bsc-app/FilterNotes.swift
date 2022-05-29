@@ -15,6 +15,11 @@ final class FilterNotes {
 
     init() {
         filter(notesModel: notesModel, parsNotesModel: parsNotesModel)
+        print("FilterNotes init")
+    }
+
+    deinit {
+        print("FilterNotes deinit")
     }
 
     func loadNotes(completion: @escaping() -> Void) {
