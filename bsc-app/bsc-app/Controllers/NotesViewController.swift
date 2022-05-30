@@ -119,7 +119,11 @@ final class NotesViewController: UIViewController {
     private func createModel() -> NotesModel? {
         if let newHeader = headerTextFiled.text,
            let newNotes = noteTextView.text {
-            let notesModel = NotesModel(header: newHeader, notesText: newNotes, dateNotes: date, isSave: isNoteSave)
+            let notesModel = NotesModel(header: newHeader,
+                                        notesText: newNotes,
+                                        dateNotes: date,
+                                        userShareIcon: nil,
+                                        isSave: isNoteSave)
             guard !notesModel.isEmptyNotes else {
                 createAlert()
                 return nil

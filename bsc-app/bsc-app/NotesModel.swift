@@ -19,7 +19,7 @@ struct NotesModel: Codable {
         return header.isEmpty || notesText.isEmpty
     }
 
-    init(header: String, notesText: String, dateNotes: Date, userShareIcon: String, isSave: Bool) {
+    init(header: String, notesText: String, dateNotes: Date, userShareIcon: String?, isSave: Bool) {
         self.header = header
         self.notesText = notesText
         self.dateNotes = dateNotes

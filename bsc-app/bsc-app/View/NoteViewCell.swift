@@ -33,7 +33,7 @@ final class NoteViewCell: UITableViewCell {
         return dateLabel
     }()
 
-    let userShareIcon: UIImageView = {
+    private let userShareIcon: UIImageView = {
         let userShareIcon = UIImageView()
         userShareIcon.layer.cornerRadius = 25
         userShareIcon.translatesAutoresizingMaskIntoConstraints = false
@@ -55,6 +55,30 @@ final class NoteViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    private var currentImageUrl: URL?
+    func loadImage(imageURL: String?) {
+        self.userShareIcon.image = nil
+        guard let imageURL = imageURL else { return currentImageUrl = nil }
+        let url = URL(string: imageURL)
+        currentImageUrl = url
+        guard let url = url else { return }
+        let queue = DispatchQueue.global(qos: .utility)
+        queue.async {
+            if let img = MemoryImageCache.cache[url] {
+                DispatchQueue.main.async {
+                    self.userShareIcon.image = img
+                }
+            } else if let data = try? Data(contentsOf: url) {
+                DispatchQueue.main.async {
+                    guard url == self.currentImageUrl else { return }
+                    guard let image = UIImage(data: data) else { return }
+                    MemoryImageCache.cache[url] = image
+                    self.userShareIcon.image = image
+                }
+            }
+        }
+    }
+
     // MARK: - Setup constraint
 
     private func setupConstraint() {
@@ -62,6 +86,7 @@ final class NoteViewCell: UITableViewCell {
         setupLabelConstraint()
         setupTextLabelConstraint()
         setupDateLabelConstraint()
+        setupUserShareIconConstraint()
     }
 
     func checkSelected() {
@@ -82,17 +107,17 @@ final class NoteViewCell: UITableViewCell {
         setupChekConstraint()
     }
 
-    func setupUserShareIconConstraint() {
-        addSubview(userShareIcon)
+    private func setupUserShareIconConstraint() {
+        contentView.addSubview(userShareIcon)
         NSLayoutConstraint.activate([
-            userShareIcon.rightAnchor.constraint(equalTo: rightAnchor, constant: -10),
-            userShareIcon.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            userShareIcon.widthAnchor.constraint(equalToConstant: 24),
-            userShareIcon.heightAnchor.constraint(equalToConstant: 24)
+            userShareIcon.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -10),
+            userShareIcon.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            userShareIcon.widthAnchor.constraint(equalToConstant: 25),
+            userShareIcon.heightAnchor.constraint(equalToConstant: 25)
         ])
     }
 
-    func setupChekConstraint() {
+    private func setupChekConstraint() {
         checkBoxView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(checkBoxView)
         checkTrailingConstraint = checkBoxView.rightAnchor.constraint(equalTo: contentView.leftAnchor, constant: -10)
@@ -140,4 +165,8 @@ final class NoteViewCell: UITableViewCell {
         self.layer.borderColor = .init(gray: 0, alpha: 0.1)
         layer.cornerRadius = 14
     }
+}
+
+final class MemoryImageCache {
+    static var cache: [URL: UIImage] = [:]
 }

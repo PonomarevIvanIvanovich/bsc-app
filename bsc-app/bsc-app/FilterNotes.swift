@@ -6,12 +6,13 @@
 //
 
 import Foundation
+import UIKit
 
 final class FilterNotes {
-
+    var image = UIImage()
     var arrayModel = [NotesModel]()
     private var notesModel = [NotesModel]()
-    private var parsNotesModel = [ParsModel]()
+    private var parsNotesModel = [NotesModelResponse]()
 
     init() {
         filter(notesModel: notesModel, parsNotesModel: parsNotesModel)
@@ -28,21 +29,27 @@ final class FilterNotes {
             filter(notesModel: notesModel, parsNotesModel: parsNotesModel)
         }
         let worker = Worker()
-        worker.request(complition: { (welcomeNotes, _) in
-            guard let welcome = welcomeNotes else { return }
-            self.parsNotesModel = welcome
+        worker.request(complition: { result in
+            switch result {
+            case .success(let result):
+                self.parsNotesModel = result
+            case .failure(let error):
+                print(error)
+            }
+
             self.filter(notesModel: self.notesModel, parsNotesModel: self.parsNotesModel)
             completion()
         })
     }
 
-    func filter(notesModel: [NotesModel], parsNotesModel: [ParsModel]) {
+    func filter(notesModel: [NotesModel], parsNotesModel: [NotesModelResponse]) {
         var newModelArray = notesModel
         for newModel in parsNotesModel {
             let model = NotesModel(
                 header: newModel.header,
                 notesText: newModel.text,
                 dateNotes: newModel.date,
+                userShareIcon: newModel.userShareIcon,
                 isSave: false)
             newModelArray.append(model)
         }

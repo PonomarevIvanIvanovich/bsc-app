@@ -7,9 +7,14 @@
 
 import Foundation
 
-struct ParsModel: Codable {
+struct NotesModelResponse: Codable {
     let header: String
     let text: String
     let date: Date
     let userShareIcon: String?
+
+    enum NotesErrors: Error {
+        case emptyData
+        case parsingError
+    }
 }
