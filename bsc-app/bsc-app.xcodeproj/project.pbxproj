@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E848FF072832387600ADA4F7 /* ParsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E848FF062832387600ADA4F7 /* ParsModel.swift */; };
+		E848FF072832387600ADA4F7 /* NotesModelResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = E848FF062832387600ADA4F7 /* NotesModelResponse.swift */; };
 		E848FF0928323F6600ADA4F7 /* Worker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E848FF0828323F6600ADA4F7 /* Worker.swift */; };
 		E88E5E8D28390BF2008B27B0 /* FilterNotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E88E5E8C28390BF2008B27B0 /* FilterNotes.swift */; };
+		E88E5E8F2844DBCC008B27B0 /* ImageThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = E88E5E8E2844DBCC008B27B0 /* ImageThread.swift */; };
 		E892CC6727F6D65900C021BC /* NotesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E892CC6627F6D65900C021BC /* NotesViewController.swift */; };
 		E892CC6927F6E3CD00C021BC /* NotesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E892CC6827F6E3CD00C021BC /* NotesModel.swift */; };
 		E8957F8A27F0700900732081 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8957F8927F0700900732081 /* AppDelegate.swift */; };
@@ -27,9 +28,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		E848FF062832387600ADA4F7 /* ParsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsModel.swift; sourceTree = "<group>"; };
+		E848FF062832387600ADA4F7 /* NotesModelResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesModelResponse.swift; sourceTree = "<group>"; };
 		E848FF0828323F6600ADA4F7 /* Worker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Worker.swift; sourceTree = "<group>"; };
 		E88E5E8C28390BF2008B27B0 /* FilterNotes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterNotes.swift; sourceTree = "<group>"; };
+		E88E5E8E2844DBCC008B27B0 /* ImageThread.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageThread.swift; sourceTree = "<group>"; };
 		E892CC6627F6D65900C021BC /* NotesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesViewController.swift; sourceTree = "<group>"; };
 		E892CC6827F6E3CD00C021BC /* NotesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesModel.swift; sourceTree = "<group>"; };
 		E8957F8627F0700900732081 /* bsc-app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "bsc-app.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -84,8 +86,9 @@
 				E896992027FC5AFD008A2E24 /* NotesStorage.swift */,
 				E88E5E8C28390BF2008B27B0 /* FilterNotes.swift */,
 				E892CC6827F6E3CD00C021BC /* NotesModel.swift */,
-				E848FF062832387600ADA4F7 /* ParsModel.swift */,
+				E848FF062832387600ADA4F7 /* NotesModelResponse.swift */,
 				E848FF0828323F6600ADA4F7 /* Worker.swift */,
+				E88E5E8E2844DBCC008B27B0 /* ImageThread.swift */,
 				E8957F9227F0700B00732081 /* Assets.xcassets */,
 				E8957F9427F0700B00732081 /* LaunchScreen.storyboard */,
 				E8957F9727F0700B00732081 /* Info.plist */,
@@ -223,11 +226,12 @@
 				E892CC6927F6E3CD00C021BC /* NotesModel.swift in Sources */,
 				E896992127FC5AFE008A2E24 /* NotesStorage.swift in Sources */,
 				E8E4A2C0281AF6A800AC6B04 /* appFormater.swift in Sources */,
+				E88E5E8F2844DBCC008B27B0 /* ImageThread.swift in Sources */,
 				E8957F8C27F0700900732081 /* SceneDelegate.swift in Sources */,
 				E8969974280D374A008A2E24 /* NotesViewDelegate.swift in Sources */,
 				E88E5E8D28390BF2008B27B0 /* FilterNotes.swift in Sources */,
 				E896997228059762008A2E24 /* NoteViewCell.swift in Sources */,
-				E848FF072832387600ADA4F7 /* ParsModel.swift in Sources */,
+				E848FF072832387600ADA4F7 /* NotesModelResponse.swift in Sources */,
 				E848FF0928323F6600ADA4F7 /* Worker.swift in Sources */,
 				E892CC6727F6D65900C021BC /* NotesViewController.swift in Sources */,
 			);

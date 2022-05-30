@@ -55,6 +55,20 @@ final class NoteViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func loadImage(imageURL: String?) {
+        guard let imageURL = imageURL else { return }
+        guard let url = URL(string: imageURL) else { return }
+        let queue = DispatchQueue.global(qos: .utility)
+        queue.async {
+            if let data = try? Data(contentsOf: url) {
+                DispatchQueue.main.async {
+                    guard let image = UIImage(data: data) else { return }
+                    self.userShareIcon.image = image
+                }
+            }
+        }
+    }
+
     // MARK: - Setup constraint
 
     private func setupConstraint() {
@@ -62,6 +76,7 @@ final class NoteViewCell: UITableViewCell {
         setupLabelConstraint()
         setupTextLabelConstraint()
         setupDateLabelConstraint()
+        setupUserShareIconConstraint()
     }
 
     func checkSelected() {
@@ -82,17 +97,17 @@ final class NoteViewCell: UITableViewCell {
         setupChekConstraint()
     }
 
-    func setupUserShareIconConstraint() {
-        addSubview(userShareIcon)
+    private func setupUserShareIconConstraint() {
+        contentView.addSubview(userShareIcon)
         NSLayoutConstraint.activate([
-            userShareIcon.rightAnchor.constraint(equalTo: rightAnchor, constant: -10),
-            userShareIcon.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            userShareIcon.widthAnchor.constraint(equalToConstant: 24),
-            userShareIcon.heightAnchor.constraint(equalToConstant: 24)
+            userShareIcon.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -10),
+            userShareIcon.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            userShareIcon.widthAnchor.constraint(equalToConstant: 25),
+            userShareIcon.heightAnchor.constraint(equalToConstant: 25)
         ])
     }
 
-    func setupChekConstraint() {
+    private func setupChekConstraint() {
         checkBoxView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(checkBoxView)
         checkTrailingConstraint = checkBoxView.rightAnchor.constraint(equalTo: contentView.leftAnchor, constant: -10)

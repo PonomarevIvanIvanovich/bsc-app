@@ -23,6 +23,8 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     private var lastSelectedIndexPath: IndexPath?
     private var arrayDelete = [IndexPath]()
     let filter = FilterNotes()
+    var image = UIImage()
+    static let activityIndicator = UIActivityIndicatorView()
 
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -39,13 +41,14 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        NotesListViewController.activityIndicator.startAnimating()
         setupConstraint()
         setupNoteList()
         setupRightBarButtom()
         setupAddNoteButton()
-//        filter.loadNotes {
-//            self.noteList.reloadData()
-//        }
+        filter.loadNotes {
+            self.noteList.reloadData()
+        }
         view.backgroundColor = UIColor(red: 0.898, green: 0.898, blue: 0.898, alpha: 1)
         title = "Заметки"
     }
@@ -200,6 +203,17 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     private func setupConstraint() {
         setupTableListConstraint()
         setupAddNoteButtonConstraint()
+        setupCtivityConstraint()
+    }
+
+    private func setupCtivityConstraint() {
+        view.addSubview(NotesListViewController.activityIndicator)
+        NotesListViewController.activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        NotesListViewController.activityIndicator.hidesWhenStopped = true
+        NSLayoutConstraint.activate([
+            NotesListViewController.activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            NotesListViewController.activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
     }
 
     private func setupTableListConstraint() {
@@ -221,6 +235,7 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
         addNoteButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         addNoteButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
     }
+
 }
 
 extension NotesListViewController: UITableViewDataSource {
@@ -233,6 +248,7 @@ extension NotesListViewController: UITableViewDataSource {
             cell.headerlabel.text = filter.arrayModel[indexPath.row].header
             cell.textLabelCell.text = filter.arrayModel[indexPath.row].notesText
             cell.dateLabel.text = appDate.format(filter.arrayModel[indexPath.row].dateNotes, dateFormat: "dd.MM.yyyy")
+            cell.loadImage(imageURL: filter.arrayModel[indexPath.row].userShareIcon)
             return cell
         }
         let cell = UITableViewCell(style: .default, reuseIdentifier: identifier)

@@ -8,13 +8,9 @@
 import Foundation
 import UIKit
 
-protocol WorkerType {
-    func request(complition: @escaping ([ParsModel]?, Error?) -> Void)
-}
-
-final class Worker: WorkerType {
-
-    var parsArray = [ParsModel]()
+final class Worker {
+    var image  = UIImage()
+    var parsArray = [NotesModelResponse]()
     private let session = URLSession(configuration: .default)
     private let url = URL(string: "https://firebasestorage.googleapis.com/v0/b/ios-test-ce687.appspot.com/o/lesson8.json?alt=media&token=215055df-172d-4b98-95a0-b353caca1424")
 
@@ -24,27 +20,27 @@ final class Worker: WorkerType {
 
     deinit {
         print("Worker deinit")
-
     }
 
-    func request(complition: @escaping ([ParsModel]?, Error?) -> Void) {
+    func request(complition: @escaping (Result<[NotesModelResponse], NotesModelResponse.NotesErrors>) -> Void) {
         guard let url = url else { return }
         session.dataTask(with: url) { data, response, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    print(error)
-                    complition(nil, error)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
+                NotesListViewController.activityIndicator.stopAnimating()
+                guard error == nil else {
+                    complition(.failure(.parsingError))
                     return
                 }
                 guard let data = data else {
-                    complition(nil, nil)
+                    complition(.failure(.emptyData))
                     return
                 }
                 do {
-                    let response =  try JSONDecoder().decode([ParsModel].self, from: data)
-                    complition(response, nil)
-                } catch let jsonError {
-                    complition(nil, jsonError)
+                    let response =  try JSONDecoder().decode([NotesModelResponse].self, from: data)
+                        complition(.success(response))
+
+                } catch _ {
+                    complition(.failure(.parsingError))
                 }
             }
         }.resume()
