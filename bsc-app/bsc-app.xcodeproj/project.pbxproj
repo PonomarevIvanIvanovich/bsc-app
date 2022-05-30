@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E848FF072832387600ADA4F7 /* ParsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E848FF062832387600ADA4F7 /* ParsModel.swift */; };
+		E848FF072832387600ADA4F7 /* NotesModelResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = E848FF062832387600ADA4F7 /* NotesModelResponse.swift */; };
 		E848FF0928323F6600ADA4F7 /* Worker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E848FF0828323F6600ADA4F7 /* Worker.swift */; };
 		E88E5E8D28390BF2008B27B0 /* FilterNotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E88E5E8C28390BF2008B27B0 /* FilterNotes.swift */; };
 		E892CC6727F6D65900C021BC /* NotesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E892CC6627F6D65900C021BC /* NotesViewController.swift */; };
@@ -27,7 +27,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		E848FF062832387600ADA4F7 /* ParsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsModel.swift; sourceTree = "<group>"; };
+		E848FF062832387600ADA4F7 /* NotesModelResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesModelResponse.swift; sourceTree = "<group>"; };
 		E848FF0828323F6600ADA4F7 /* Worker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Worker.swift; sourceTree = "<group>"; };
 		E88E5E8C28390BF2008B27B0 /* FilterNotes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterNotes.swift; sourceTree = "<group>"; };
 		E892CC6627F6D65900C021BC /* NotesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesViewController.swift; sourceTree = "<group>"; };
@@ -84,7 +84,7 @@
 				E896992027FC5AFD008A2E24 /* NotesStorage.swift */,
 				E88E5E8C28390BF2008B27B0 /* FilterNotes.swift */,
 				E892CC6827F6E3CD00C021BC /* NotesModel.swift */,
-				E848FF062832387600ADA4F7 /* ParsModel.swift */,
+				E848FF062832387600ADA4F7 /* NotesModelResponse.swift */,
 				E848FF0828323F6600ADA4F7 /* Worker.swift */,
 				E8957F9227F0700B00732081 /* Assets.xcassets */,
 				E8957F9427F0700B00732081 /* LaunchScreen.storyboard */,
@@ -227,7 +227,7 @@
 				E8969974280D374A008A2E24 /* NotesViewDelegate.swift in Sources */,
 				E88E5E8D28390BF2008B27B0 /* FilterNotes.swift in Sources */,
 				E896997228059762008A2E24 /* NoteViewCell.swift in Sources */,
-				E848FF072832387600ADA4F7 /* ParsModel.swift in Sources */,
+				E848FF072832387600ADA4F7 /* NotesModelResponse.swift in Sources */,
 				E848FF0928323F6600ADA4F7 /* Worker.swift in Sources */,
 				E892CC6727F6D65900C021BC /* NotesViewController.swift in Sources */,
 			);

@@ -11,7 +11,7 @@ final class FilterNotes {
 
     var arrayModel = [NotesModel]()
     private var notesModel = [NotesModel]()
-    private var parsNotesModel = [ParsModel]()
+    private var parsNotesModel = [NotesModelResponse]()
 
     init() {
         filter(notesModel: notesModel, parsNotesModel: parsNotesModel)
@@ -23,15 +23,19 @@ final class FilterNotes {
             filter(notesModel: notesModel, parsNotesModel: parsNotesModel)
         }
         let worker = Worker()
-        worker.request(complition: { (welcomeNotes, _) in
-            guard let welcome = welcomeNotes else { return }
-            self.parsNotesModel = welcome
+        worker.request(complition: { result in
+            switch result {
+            case .success(let welcomeNotes):
+                self.parsNotesModel = welcomeNotes
+            case .failure(let error):
+                print(error)
+            }
             self.filter(notesModel: self.notesModel, parsNotesModel: self.parsNotesModel)
             completion()
         })
     }
 
-    func filter(notesModel: [NotesModel], parsNotesModel: [ParsModel]) {
+    func filter(notesModel: [NotesModel], parsNotesModel: [NotesModelResponse]) {
         var newModelArray = notesModel
         for newModel in parsNotesModel {
             let model = NotesModel(
