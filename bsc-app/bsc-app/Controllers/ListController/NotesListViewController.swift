@@ -9,11 +9,10 @@ import Foundation
 import UIKit
 
 final class NotesListViewController: UIViewController, NotesViewDelegate {
-
+    var interactor: NotesListInteractor?
     private let addNoteButton = UIButton()
     private let noteList = UITableView(frame: .zero, style: .plain)
     private let identifier = "Cell"
-    private let appDate = AppDateFormatter()
     private let rightBarButtom = UIBarButtonItem()
     private let imageBasket = UIImage(named: "Vector")
     private let imagePlus = UIImage(named: "plus")
@@ -22,7 +21,7 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
     private var buttonBotConstraint: NSLayoutConstraint?
     private var lastSelectedIndexPath: IndexPath?
     private var arrayDelete = [IndexPath]()
-    let filter = FilterNotes()
+    private var displayedNotes: [NotesListSceneModel.NotesViewModel] = []
     var image = UIImage()
     static let activityIndicator = UIActivityIndicatorView()
 
@@ -39,6 +38,19 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
         print("NotesListViewController deinit")
     }
 
+    func display(_ viewModel: NotesListSceneModel.InitForm.ViewModel) {
+        reload(notes: viewModel.notesViewModels)
+    }
+
+    func display(_ viewModel: NotesListSceneModel.DeleteItems.ViewModel) {
+        reload(notes: viewModel.notesViewModels)
+    }
+
+    private func reload(notes: [NotesListSceneModel.NotesViewModel]) {
+        displayedNotes = notes
+        noteList.reloadData()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         NotesListViewController.activityIndicator.startAnimating()
@@ -46,11 +58,9 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
         setupNoteList()
         setupRightBarButtom()
         setupAddNoteButton()
-        filter.loadNotes {
-            self.noteList.reloadData()
-        }
         view.backgroundColor = UIColor(red: 0.898, green: 0.898, blue: 0.898, alpha: 1)
         title = "Заметки"
+        interactor?.request(NotesListSceneModel.InitForm.Request())
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -66,17 +76,17 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
 
     // MARK: - Action
 
-    func goBackButton(model: NotesModel?, index: Int?) {
+    func goBackButton(model: NotesListSceneModel.NotesViewModel?, index: Int?) {
         guard let newModel = model else { return }
         if let index = index {
-            if filter.arrayModel.indices.contains(index) {
-                filter.arrayModel[index] = newModel
+            if displayedNotes.indices.contains(index) {
+                displayedNotes[index] = newModel
             } else {
-                filter.arrayModel.append(newModel)
+                displayedNotes.append(newModel)
             }
             noteList.reloadData()
         } else {
-            filter.arrayModel.append(newModel)
+            displayedNotes.append(newModel)
             noteList.reloadData()
         }
     }
@@ -108,15 +118,7 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
             createAlert()
         } else {
             let arraySorted = arrayDelete.sorted(by: >)
-            var array = NotesStorage.notesModel
-            for indexPath in arraySorted {
-                if filter.arrayModel[indexPath.row].isSave {
-                    array?.remove(at: indexPath.row)
-                }
-                filter.arrayModel.remove(at: indexPath.row)
-            }
-            NotesStorage.notesModel = array
-            noteList.reloadData()
+            interactor?.request(NotesListSceneModel.DeleteItems.Request(arraySorted: arraySorted))
         }
         arrayDelete.removeAll()
     }
@@ -190,7 +192,7 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
         present(alert, animated: true, completion: nil)
     }
 
-    private func createNotesViewController(model: NotesModel?, index: IndexPath?) {
+    private func createNotesViewController(model: NotesListSceneModel.NotesViewModel?, index: IndexPath?) {
         let notesViewController = NotesViewController()
         notesViewController.indexPath = index
         notesViewController.delegate = self
@@ -240,19 +242,17 @@ final class NotesListViewController: UIViewController, NotesViewDelegate {
 
 extension NotesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filter.arrayModel.count
+        displayedNotes.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? NoteViewCell {
-            cell.headerlabel.text = filter.arrayModel[indexPath.row].header
-            cell.textLabelCell.text = filter.arrayModel[indexPath.row].notesText
-            cell.dateLabel.text = appDate.format(filter.arrayModel[indexPath.row].dateNotes, dateFormat: "dd.MM.yyyy")
-            cell.loadImage(imageURL: filter.arrayModel[indexPath.row].userShareIcon)
-            return cell
-        }
-        let cell = UITableViewCell(style: .default, reuseIdentifier: identifier)
-        cell.textLabel?.text = "error"
+        guard
+            let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? NoteViewCell
+        else { return UITableViewCell() }
+        cell.headerlabel.text = displayedNotes[indexPath.row].header
+        cell.textLabelCell.text = displayedNotes[indexPath.row].notesText
+        cell.dateLabel.text = displayedNotes[indexPath.row].dateNotes
+        cell.loadImage(imageURL: displayedNotes[indexPath.row].userShareIcon)
         return cell
     }
 }
@@ -261,7 +261,7 @@ extension NotesListViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if !tableView.isEditing {
-            self.createNotesViewController(model: filter.arrayModel[indexPath.row], index: indexPath)
+            self.createNotesViewController(model: displayedNotes[indexPath.row], index: indexPath)
         } else {
             arrayDelete.append(indexPath)
         }

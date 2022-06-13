@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 final class FilterNotes {
-    var image = UIImage()
+
     var arrayModel = [NotesModel]()
     private var notesModel = [NotesModel]()
     private var parsNotesModel = [NotesModelResponse]()

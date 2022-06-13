@@ -73,11 +73,11 @@ final class NotesViewController: UIViewController {
         guard let model = createModel() else { return }
         if let index = indexPath?.row {
             saveNewNote(model: model)
-            self.delegate?.goBackButton(model: model, index: index)
+//            self.delegate?.goBackButton(model: model, index: index)
             navigationController?.popToRootViewController(animated: true)
         } else {
             saveNewNote(model: model)
-            self.delegate?.goBackButton(model: model, index: nil)
+//            self.delegate?.goBackButton(model: model, index: nil)
             navigationController?.popToRootViewController(animated: true)
         }
     }
@@ -133,7 +133,7 @@ final class NotesViewController: UIViewController {
         return nil
     }
 
-    func loadNote(model: NotesModel?) {
+    func loadNote(model: NotesListSceneModel.NotesViewModel?) {
         dateTextFiled.text = appDate.format(date, dateFormat: "dd.MM.yyyy EEEE HH:mm")
         guard let model = model else { return }
         headerTextFiled.text = model.header
